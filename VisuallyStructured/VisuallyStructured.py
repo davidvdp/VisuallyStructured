@@ -26,7 +26,7 @@ def setLogging():
 def main():
     setLogging()
 
-    controller = Controller()
+    controller = Controller(name="Visually Structured")
     controller.StartGUI()
 
 

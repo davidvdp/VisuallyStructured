@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from Variables import *
+from SubjectObserver import Observer
 
 class ImageTab(Frame):
     def __init__(self, name, notebook):
@@ -136,7 +137,7 @@ class ImageTab(Frame):
         rmenu.add_command(label="Zoom In (Scroll wheel)", command=self.ZoomIn)
         rmenu.add_command(label="Zoom Out (Scroll wheel)", command=self.ZoomOut)
         rmenu.add_command(label="Zoom Fit", command=self.ZoomFit)
-        rmenu.add_command(label="Zoom 100%", command=lambda: self.ZoomFit(1))
+        rmenu.add_command(label="Zoom 100%", command=lambda: self.RescaleImage(scale=1.0))
 
         self.tk.call('tk_popup', rmenu, x, y)
 
