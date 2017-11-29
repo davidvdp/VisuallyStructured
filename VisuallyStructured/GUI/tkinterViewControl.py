@@ -1,6 +1,7 @@
 import logging
 from tkinter import *
 from GUI.GUIInterface import *
+from SubjectObserver import Observer
 
 class ViewControl(Observer,View):
     """Takes care of the presentation of the Flow diagram."""

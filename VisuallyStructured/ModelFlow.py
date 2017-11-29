@@ -1,4 +1,4 @@
-from Subject import Subject
+from SubjectObserver import Subject
 import logging
 import os
 

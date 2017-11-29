@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import logging
 from GUI.GUIInterface import *
 
@@ -20,7 +21,8 @@ class ViewMenu(View):
         self._parent = parent
 
     def onNewFile(self):
-        print("onNewFilenot implemented")
+        if messagebox.askyesno("New Flow", "Are you sure you want to start a new flow?\nUnsaved work will be lost."):
+            self.GetController().NewFlow()
 
     def onOpenFile(self):
         name = askopenfilename()

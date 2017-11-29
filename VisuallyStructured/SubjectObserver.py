@@ -1,4 +1,3 @@
-from GUI.GUIInterface import Observer
 import shutil
 import os
 import logging
@@ -20,3 +19,6 @@ class Subject(object):
         for observer in self._observers:
             observer.Update()
 
+class Observer(object):
+    def Update(self):
+        raise NotImplementedError

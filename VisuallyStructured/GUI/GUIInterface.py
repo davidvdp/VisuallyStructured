@@ -1,9 +1,10 @@
 from tkinter import *
 from GUI.tkinterGUIHelper import *
+import Controller
 
-class Observer(object):
-    def Update(self):
-        raise NotImplementedError
+"""
+View Class that other views derive from.
+"""
 
 class View(object):
     """view class"""
@@ -33,7 +34,7 @@ class View(object):
     def Start(self):
         raise NotImplementedError
 
-    def GetController(self):
+    def GetController(self) -> Controller :
         return self._parent.controller
 
     def SetHeight(self,height):

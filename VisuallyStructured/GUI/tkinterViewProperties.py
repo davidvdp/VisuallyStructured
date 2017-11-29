@@ -2,6 +2,7 @@ import logging
 from GUI.GUIInterface import *
 from FlowBlocks import *
 from tkinter import filedialog
+from SubjectObserver import Observer
 
 class ViewProperties(Observer,View):
     """Takes care of the presentation of the Flow diagram."""

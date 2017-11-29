@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter.filedialog  import askopenfilename
-from GUI.GUIInterface import Observer
 from GUI.tkinterGUIHelper import  *
 from GUI.tkinterViewMenu import ViewMenu
 from GUI.tkinterViewFlow import ViewFlow
@@ -17,6 +16,7 @@ class GUI(object):
         Constructor initializes all other subviews as aggregate relations.
         """
         self.root = Tk()
+        self.root.title( controller.name )
         self.controller = controller
         self.viewmenu = ViewMenu(self)
         self.viewcontrol = ViewControl(self)

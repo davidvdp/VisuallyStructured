@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter.font import Font
 from GUI.GUIInterface import *
 from FlowBlocks import *
+from SubjectObserver import Observer
 import inspect
 
 class ViewFlow(Observer,View):

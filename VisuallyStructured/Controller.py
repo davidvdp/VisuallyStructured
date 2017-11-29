@@ -1,14 +1,16 @@
 import logging
 from GUI.tkinterGUI import GUI
-from ModelFlow import ModelFlow
+from ModelFlow import ModelFlow, Flow
 from ModelResults import ModelResults
 from GUI.tkinterGUI import *
 from FlowBlocks import *
 from copy import deepcopy
 
+
 class Controller(object):
     """The controller functions as a communicator between view and model. It instantiates the model and view."""
-    def __init__(self):
+    def __init__(self, name):
+        self.__name = name
 
         logging.info("Instantiating result model...")
         self._resultmodel = ModelResults()
@@ -33,20 +35,24 @@ class Controller(object):
         self._resultmodel.Attach(self._view.viewresult)
         logging.info("Subscribed result view to result model.")
 
+    @property
+    def name(self):
+        return self.__name
+
     def StartGUI(self):
         logging.info("Starting GUI...")
         self._view.Start()
         logging.info("GUI closed.")
 
-    def GetFlow(self):
+    def GetFlow(self) -> Flow:
         flow = self._flowmodel.GetFlow()
         return deepcopy( flow ) # it is not allowed to edit the flow in the model directly,
 
-    def SetFlow(self, flow):
+    def SetFlow(self, flow: Flow ) -> bool:
         self._flowmodel.SetFlow(flow)
         return True
 
-    def GetResults(self):
+    def GetResults(self) -> ModelResults:
         results = self._resultmodel.GetResult()
         return results
 
@@ -81,3 +87,7 @@ class Controller(object):
 
     def StartFlow(self):
         self._flowmodel.ExecuteStepByStep()
+
+    def NewFlow(self):
+        flow = Flow()
+        self._flowmodel.SetFlow(flow)
