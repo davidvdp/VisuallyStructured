@@ -1,0 +1,7 @@
+/VisuallyStructured/*._py
+/VisuallyStructured/.idea
+/VisuallyStructured/__pycache__
+__pycache__
+/VisuallyStructured/ClassDiagrams/*.autosave
+/VisuallyStructured/ClassDiagrams/*.dia~
+/VisuallyStructured/log.csv

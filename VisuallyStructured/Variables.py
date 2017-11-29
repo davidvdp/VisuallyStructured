@@ -1,0 +1,354 @@
+import pickle
+import os
+import logging
+
+class Var(object):
+    """
+    Var object allow you to generate a structured text of the parameter including all sub-parameters that are nested in
+    self.SubVariables.
+
+    GetVariableIDs() gets an address like string for every parameter associated to this variable. Implement own GetVariableIDs()
+    when type is a stub (i.e. does not have other SubVariables liek float or int).
+
+    It allows objects that inherit from Var to draw itself (implement when necessary).
+    """
+    def __init__(self, name):
+        """
+        Takes a name for your custom variable, and initialized the dictianary containing all sub variables.
+        :param name:
+        """
+        self.SubVariables = dict() #contains all nested variables (e.g. a line can be constructed from points
+        self.__name = name
+        self.Limits = None
+        self.__delimiter = "."
+        self.flowidreference = None
+
+    @property
+    def name(self):
+        return self.__name
+
+    @name.setter
+    def name(self, name):
+        self.__name = name
+
+    def Draw(self):
+        for drawable in self.SubVariables:
+            drawable.Draw()
+
+    @property
+    def value(self):
+        raise ValueError("Cannot get value. Value getter and setter not implemented")
+
+    @value.setter
+    def value(self, value):
+        raise ValueError("Cannot set value. Value getter and setter not implemented")
+
+    def Print(self, level = 0):
+        """
+        Gets a representation of all data needed for this object, and returns this as structured text
+        :param level: determines the indentation level.
+        :return: a string of structured text
+        """
+        tabs = ""
+        for i in range(level): tabs += "\t"
+
+        printout = ""
+        for key, val in self.SubVariables.items():
+            printout += "\n"+tabs+" (" + str(key) + ")"
+            printout += val.Print(level=level+1)
+        return "\n" + tabs + self.name + printout
+
+    def GetLimits(self,id):
+        obj = self.GetVariableByID(id)
+        if obj is None:
+            return None
+        return obj.Limits
+
+    def GetVariableIDs(self,name=None):
+        if self.Stub():
+            raise NotImplementedError("Stub variable types should implement their own GetVariableIDs(name) method")
+        if name is None:
+            name = self.name
+        varids = dict()
+        for key,val in self.SubVariables.items():
+            subvarids = val.GetVariableIDs(key)
+            for keysub,valsub in subvarids.items():
+                varids[name + self.__delimiter + keysub] = valsub
+        return varids
+
+    def SetVariableValueByID(self, id, value):
+        if self.Stub():
+            self.value = value
+            return self.value
+        obj = self.GetVariableByID(id)
+        obj.value = value
+        return obj.value
+
+    def GetVariableByID(self, id):
+        splitted_id = id.split(self.__delimiter)[1:]
+        obj = self
+        for subid in splitted_id:
+            if obj.Stub():
+                break
+            nextObj = obj.SubVariables.get(subid)
+            if nextObj is None:
+                return None
+            else:
+                obj = nextObj
+        return obj
+
+    def GetVariablesByType(self, type):
+        vars = dict()
+        ids = self.GetVariableIDs()
+        for key, var in ids.items():
+            if type in key:
+                obj = self.GetVariableByID(key.split("type")[0]+type)
+                if not obj:
+                    continue
+                vars[key] = obj
+        return vars
+
+    def Stub(self):
+        if (len(self.SubVariables)):
+            return False
+        else:
+            return True
+
+    def Save(self, filename):
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
+
+    def Load(filename):
+        with open(filename,"rb") as f:
+            return pickle.load(f)
+
+class StubVar(Var):
+    def __init__(self, type, name):
+        super().__init__(name=name)
+        self.__type = type
+
+    def Print(self, level = 0):
+        tabs = ""
+        for i in range(level): tabs += "\t"
+        return "\n" + tabs + self.name + ": " + str(self.value)
+
+    def GetVariableIDs(self,name=None):
+        if name:
+            varids = {name + "." + self.__type: self.value}
+        else:
+            varids = {self.__type: self.value}
+        return varids
+
+class TextVar(StubVar): # not stringvar because this has already been used by tkinter
+    def __init__(self, stringvalue="", name="String"):
+        super().__init__("String",name=name)
+        self.value = stringvalue
+
+    @property
+    def value(self):
+        if self.flowidreference:
+            return self.__value.__value
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        self.flowidreference = None
+        self.__value = value
+
+class ImageVar(StubVar):
+    def __init__(self, image=None, name="Image"):
+        super().__init__("Image", name=name)
+        self.value = image
+
+    @property
+    def value(self):
+        if self.flowidreference:
+            return self.__value.__value
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        self.__value = value
+
+class IntVar(StubVar):
+    def __init__(self, intvalue=0, name="Int",min=None,max=None):
+        super().__init__("Int",name=name)
+        self.SubVariables = dict()
+        if min is not None and max is not None and max < min:
+            temp = min
+            min = max
+            max = temp
+        self.Limits = {"min":min, "max":max}
+        self.value = intvalue
+
+    @property
+    def value(self):
+        if self.flowidreference:
+            return self.__value.__value
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value,int):
+            value = int(value)
+        self.flowidreference = None
+        if self.Limits["min"] is not None and value < self.Limits["min"]:
+            value = self.Limits["min"]
+        if self.Limits["max"] is not None and value > self.Limits["max"]:
+            value = self.Limits["max"]
+        self.__value = value
+
+class FloatVar(StubVar):
+    def __init__(self, floatvalue=0.0, name="Float",min=None,max=None):
+        super().__init__("Float",name=name)
+        self.SubVariables = dict()
+        if min is not None and max is not None and max < min:
+            temp = min
+            min = max
+            max = temp
+        self.Limits = {"min":min, "max":max}
+        self.value = floatvalue
+
+    @property
+    def value(self):
+        if self.flowidreference:
+            return self.__value.__value
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value,float):
+            value = float(value)
+        self.flowidreference = None
+        if self.Limits["min"] is not None and value < self.Limits["min"]:
+            value = self.Limits["min"]
+        if self.Limits["max"] is not None and value > self.Limits["max"]:
+            value = self.Limits["max"]
+        self.__value = value
+
+
+class PathVar(StubVar):
+    def __init__(self, path=None, name="Path"):
+        super().__init__("Path", name=name)
+        self.value = path
+
+    @property
+    def value(self):
+        if self.flowidreference:
+            return self.__value.__value
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        if value is None:
+            self.__value = None
+            return
+        self.flowidreference = None
+        if not isinstance(value, str):
+            value = str(value)
+
+        if os.path.exists(value):
+            self.__value = value
+            return
+        if os.path.isfile(value):
+            self.__value = value
+        else:
+            logging.warning("Path %s that was provided top the pathvar is not valid." %value)
+
+class IntPointVar(Var):
+    def __init__(self, x=IntVar(), y=IntVar(), name="Point"):
+        super().__init__(name)
+        self.SubVariables = {"x":IntVar(), "y": IntVar()}
+        self.x = x
+        self.y = y
+
+    @property
+    def x(self):
+        return self.SubVariables[0]
+
+    @x.setter
+    def x(self, x):
+        if not isinstance(x,IntVar):
+            raise ValueError
+        self.SubVariables["x"] = x
+
+    @property
+    def y(self):
+        return self.SubVariables[1]
+
+    @y.setter
+    def y(self, y):
+        if not isinstance(y,IntVar):
+            raise ValueError
+        self.SubVariables["y"] = y
+
+class PointVar(Var):
+    def __init__(self, x=FloatVar(), y=FloatVar(), name="Point"):
+        super().__init__(name)
+        self.SubVariables = {"x":FloatVar(), "y": FloatVar()}
+        self.x = x
+        self.y = y
+
+    @property
+    def x(self):
+        return self.SubVariables[0]
+
+    @x.setter
+    def x(self, x):
+        if not isinstance(x,FloatVar):
+            raise ValueError
+        self.SubVariables["x"] = x
+
+    @property
+    def y(self):
+        return self.SubVariables[1]
+
+    @y.setter
+    def y(self, y):
+        if not isinstance(y,FloatVar):
+            raise ValueError
+        self.SubVariables["y"] = y
+
+class LineVar(Var):
+    def __init__(self, start=PointVar(), end=PointVar(), name="Line"):
+        super().__init__(name)
+        self.SubVariables = {"start":PointVar(), "end":PointVar()}
+        self.start = start
+        self.end = end
+
+    @property
+    def start(self):
+        return self.SubVariables["start"]
+
+    @start.setter
+    def start(self, start):
+        if not isinstance(start, PointVar):
+            raise ValueError
+        self.SubVariables["start"] = start
+
+    @property
+    def end(self):
+        return self.SubVariables["end"]
+
+    @end.setter
+    def end(self, end):
+        if not isinstance(end, PointVar):
+            raise ValueError
+        self.SubVariables["end"] = end
+
+def main():
+    line = LineVar(IntPointVar(FloatVar(1.0), FloatVar(1.0)), IntPointVar(FloatVar(2.0), FloatVar(2.0)))
+    print(line.Print())
+
+    #Pickle Serialization
+    filename = "SavedFlows\\testSaveVariables.vsf"
+    pickle.dump(line,open(filename,"wb"))
+
+    unpickeldline = pickle.load(open(filename,"rb"))
+
+    # Varid's
+    varids = unpickeldline.GetVariableIDs()
+    print(varids)
+
+if __name__ == "__main__":
+    main()
