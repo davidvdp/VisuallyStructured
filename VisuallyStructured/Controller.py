@@ -9,7 +9,7 @@ from copy import deepcopy
 
 class Controller(object):
     """The controller functions as a communicator between view and model. It instantiates the model and view."""
-    def __init__(self, name):
+    def __init__(self, name, settings_file):
         self.__name = name
 
         logging.info("Instantiating result model...")

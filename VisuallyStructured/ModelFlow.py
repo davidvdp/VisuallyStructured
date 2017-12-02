@@ -1,12 +1,19 @@
 from SubjectObserver import Subject
 import logging
 import os
+import pickle
+from VisuallyStructured import settings
 
 class ModelFlow(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""
     def __init__(self,modelresult = None):
         super().__init__()
         self._flow = Flow()
+
+        flow_file = settings.settings_values["last_flow"]
+        if os.path.isfile(flow_file):
+            self._flow.load()
+
         self.__modelresult = modelresult
 
     def GetFlow(self):
@@ -14,6 +21,7 @@ class ModelFlow(Subject):
 
     def SetFlow(self, flow):
         self._flow = flow
+        self._flow.save()
         self.__modelresult.OnFlowModelChange(flow)
         self.Notify()
 
@@ -23,35 +31,33 @@ class ModelFlow(Subject):
             self.__modelresult.AddResult(block)
 
 
+
 class Flow(object):
     def __init__(self):
         self._jSONFileLocation = ""
         self.__startBlock = None
         self.__nextBlocksToBeExecuted = [self.__startBlock]
 
-    def ReadJSON(self, file=None):
-        """
-        Reads a JSON file that holds information of a previously saved flow.
-        :param file: Flow file location as a String.
-        :return: Has the file been loaded? Boolean
-        """
-        if file is not None:
-            if not os.path.exists(file):
-                logging.error("Could not find file Flow file for reading %s" %file)
-                return False
+    def save(self):
+        global setttings
+        flow_file = settings.settings_values["last_flow"]
+        self.save_to(flow_file)
 
-            self._jSONFileLocation = file
+    def save_to(self, destination_file: str):
+        with open(destination_file, 'wb') as f:
+            pickle.dump(self.__dict__, f)
+        logging.info("Saved flow to file: %s." %destination_file)
 
-        if self._jSONFileLocation is None:
-            logging.error("Flow file to read has not been specified.")
-            return False
+    def load(self):
+        global setttings
+        flow_file = settings.settings_values["last_flow"]
+        self.load_from(flow_file)
 
-        logging.info("Read JSON flow file")
-        return True
-
-    def WriteJSON(self, file=None):
-        logging.info("Wrote JSON flow file")
-        return True
+    def load_from(self, source_file: str):
+        with open(source_file, 'rb') as f:
+            tmp_dict = pickle.load(f)
+        self.__dict__.update(tmp_dict)
+        logging.info("Loaded flow from file: %s." %source_file)
 
     def GetStartBlock(self):
         return self.__startBlock

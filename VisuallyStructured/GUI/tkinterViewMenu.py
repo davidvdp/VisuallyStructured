@@ -11,6 +11,7 @@ class ViewMenu(View):
         self.menu.add_cascade(label="File", menu=filemenu)
         filemenu.add_command(label="New", command=self.onNewFile)
         filemenu.add_command(label="Open...", command=self.onOpenFile)
+        filemenu.add_command(label="Save As...", command=self.onOpenFile)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=parent.root.quit)
 
