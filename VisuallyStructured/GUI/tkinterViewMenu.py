@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import logging
-from GUI.GUIInterface import *
+from GUI.GUIInterface import View
 
 class ViewMenu(View):
     def __init__(self, parent):

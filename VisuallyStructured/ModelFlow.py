@@ -2,15 +2,14 @@ from SubjectObserver import Subject
 import logging
 import os
 import pickle
-from VisuallyStructured import settings
 
 class ModelFlow(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""
-    def __init__(self,modelresult = None):
+    def __init__(self, settings, modelresult = None):
         super().__init__()
         self._flow = Flow()
 
-        flow_file = settings.settings_values["last_flow"]
+        flow_file = settings.last_flow
         if os.path.isfile(flow_file):
             self._flow.load()
 
@@ -40,7 +39,7 @@ class Flow(object):
 
     def save(self):
         global setttings
-        flow_file = settings.settings_values["last_flow"]
+        flow_file = "flow.current"
         self.save_to(flow_file)
 
     def save_to(self, destination_file: str):
@@ -50,7 +49,7 @@ class Flow(object):
 
     def load(self):
         global setttings
-        flow_file = settings.settings_values["last_flow"]
+        flow_file = "flow.current"
         self.load_from(flow_file)
 
     def load_from(self, source_file: str):

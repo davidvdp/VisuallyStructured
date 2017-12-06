@@ -22,12 +22,9 @@ from Grabbers import File
 #TODO: Think of a name. Visico, VisuallyScructured
 #TODO: Add ruler profile and histogram options for image analysis
 
-settings = Settings()
 
-def setLogging():
-    global settings
-
-    log_dir = settings.settings_values["log_dir"]
+def setLogging(settings):
+    log_dir = settings.log_dir
 
     if not os.path.isdir(log_dir):
         os.makedirs(log_dir)
@@ -35,7 +32,7 @@ def setLogging():
     # clean log dir
     files = os.listdir(log_dir)
     nr_files = len(files)
-    max_files = settings.settings_values["max_log_history_days"]
+    max_files = settings.max_log_history_days
     if nr_files > max_files:
         files.sort()
         for i, file in enumerate(files):
@@ -53,10 +50,10 @@ def setLogging():
     rootLogger.addHandler(consoleHandler)
 
 def main():
+    settings = Settings()
+    setLogging(settings)
 
-    setLogging()
-
-    controller = Controller(name="Visually Structured", settings_file="settings.xml")
+    controller = Controller(name="Visually Structured", settings=settings)
     controller.StartGUI()
 
 

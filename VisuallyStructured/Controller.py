@@ -9,15 +9,16 @@ from copy import deepcopy
 
 class Controller(object):
     """The controller functions as a communicator between view and model. It instantiates the model and view."""
-    def __init__(self, name, settings_file):
+    def __init__(self, name, settings):
         self.__name = name
+        self.settings = settings
 
         logging.info("Instantiating result model...")
         self._resultmodel = ModelResults()
         logging.info("Result model instantiated.")
 
         logging.info("Instantiating flow model...")
-        self._flowmodel = ModelFlow(self._resultmodel)
+        self._flowmodel = ModelFlow(modelresult=self._resultmodel, settings=settings)
         logging.info("Flow model instantiated.")
 
         flow = self._flowmodel.GetFlow()
@@ -91,3 +92,9 @@ class Controller(object):
     def NewFlow(self):
         flow = Flow()
         self._flowmodel.SetFlow(flow)
+
+    def SetWindowSize(self, geometry):
+        self.settings.window_geometry = geometry
+
+    def GetWindowSize(self):
+        return self.settings.window_size

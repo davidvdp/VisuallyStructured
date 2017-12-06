@@ -16,6 +16,7 @@ class GUI(object):
         Constructor initializes all other subviews as aggregate relations.
         """
         self.root = Tk()
+
         self.root.title( controller.name )
         self.controller = controller
         self.viewmenu = ViewMenu(self)
@@ -27,14 +28,33 @@ class GUI(object):
         self.root.rowconfigure(1,weight=1)
         self.root.columnconfigure(1,weight=1)
 
+        self.root.geometry(controller.settings.window_geometry)
+
         self.width=None
         self.height=None
-
 
     def Start(self):
         self.viewmenu.Start()
         self.viewflow.Start()
+        self.root.bind("<Configure>", self.configure)  # handle resize events
+        self.root.bind("<F11>", self.configure) # handle resize events
         self.root.mainloop()
+
+    def set_window_size(self, height=None, width=None):
+        pass
+
+    def configure(self, event):
+        if self.root.attributes("-fullscreen"):
+            logging.info("Window geometry changed to: Fullscreen")
+            self.controller.SetWindowSize("Fullscreen")
+        else:
+            logging.info("Window geometry changed to: %s" %self.root.geometry())
+            self.controller.SetWindowSize(self.root.geometry())
+
+
+
+
+
 
 
 
