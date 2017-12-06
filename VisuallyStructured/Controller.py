@@ -98,3 +98,7 @@ class Controller(object):
 
     def GetWindowSize(self):
         return self.settings.window_size
+
+    def SaveFlow(self, filename):
+        self._flowmodel.GetFlow().save_to(filename)
+        self.settings.last_flow = filename
