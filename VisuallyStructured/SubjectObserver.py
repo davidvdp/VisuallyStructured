@@ -10,12 +10,12 @@ class Subject(object):
 
     def Attach(self, observer):
         self._observers.append(observer)
-        self.Notify()
+        self.__notify()
 
     def Detach(self, observer):
         self._observers.remove(observer)
 
-    def Notify(self):
+    def __notify(self):
         for observer in self._observers:
             observer.Update()
 

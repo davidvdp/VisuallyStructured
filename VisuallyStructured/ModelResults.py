@@ -50,7 +50,7 @@ class ModelResults(Subject):
                 continue
             oldresults[key] = flowblock.OutputVars # add result for new blocks
         self._results.SetResultDict(oldresults)
-        self.Notify()
+        self.__notify()
 
     def AddResult(self,flowblock):
         if flowblock is None:
@@ -58,4 +58,4 @@ class ModelResults(Subject):
         if flowblock.OutputVars is None or len(flowblock.OutputVars) is 0:
             return
         self._results.AddToResult(flowblock.name, flowblock.OutputVars)
-        self.Notify()
+        self.__notify()

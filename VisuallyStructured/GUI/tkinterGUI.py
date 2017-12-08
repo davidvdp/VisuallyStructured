@@ -44,12 +44,8 @@ class GUI(object):
         pass
 
     def configure(self, event):
-        if self.root.attributes("-fullscreen"):
-            logging.info("Window geometry changed to: Fullscreen")
-            self.controller.SetWindowSize("Fullscreen")
-        else:
-            logging.info("Window geometry changed to: %s" %self.root.geometry())
-            self.controller.SetWindowSize(self.root.geometry())
+        #logging.info("Window geometry changed to: %s" %self.root.geometry())
+        self.controller.SetWindowSize(self.root.geometry())
 
 
 

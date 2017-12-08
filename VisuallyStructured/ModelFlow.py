@@ -22,12 +22,20 @@ class ModelFlow(Subject):
         self._flow = flow
         self._flow.save()
         self.__modelresult.OnFlowModelChange(flow)
-        self.Notify()
+        self.__notify()
 
     def ExecuteStepByStep(self):
         blocksExecuted = self._flow.ExecuteStepByStep()
         for block in blocksExecuted:
             self.__modelresult.AddResult(block)
+
+    def load_flow_from_file(self, file_name: str):
+        self._flow.load_from(file_name)
+        self.__notify()
+
+    def save_flow_to_file(self, file_name: str):
+        self._flow.save_to(file_name)
+
 
 
 
