@@ -34,7 +34,7 @@ class ThreadPool(object):
     def __worker(self, thread_id: str):
         logging.info("started worker thread %s" %thread_id)
         while True:
-            if self.__extra_debug_info: logging.info("'%s' is trying to get a task." % (thread_id))
+            if self.__extra_debug_info: logging.info("'%s' is waiting for a task." % (thread_id))
             task = self.__task_queue.get()
             if self.__extra_debug_info: logging.info("'%s' got task '%s' from task queue"%(thread_id, task.name))
             task.execute()

@@ -5,6 +5,7 @@ from ModelResults import ModelResults
 from GUI.tkinterGUI import *
 from FlowBlocks import *
 from copy import deepcopy
+from ThreadPool import ThreadPool
 
 
 class Controller(object):
@@ -12,6 +13,7 @@ class Controller(object):
     def __init__(self, name, settings):
         self.__name = name
         self.settings = settings
+        self.threadpool = ThreadPool(extra_debug_info=True)
 
         logging.info("Instantiating result model...")
         self._resultmodel = ModelResults()
@@ -87,7 +89,18 @@ class Controller(object):
         self._flowmodel.SetFlow(flow)
 
     def ExecuteNextStepLevel(self):
-        self._flowmodel.ExecuteStepByStep()
+        class task(ThreadPool.Task):
+            def __init__(self, name, function_handle):
+                super().__init__(name)
+                self.__function_handle = function_handle
+            def execute(self):
+                self.__function_handle()
+
+        task_step = task("ExecuteNextStepLevel",self._flowmodel.ExecuteStepByStep)
+
+        self.threadpool.add_task(task_step)
+
+        #self._flowmodel.ExecuteStepByStep()
 
     def NewFlow(self):
         flow = Flow()
