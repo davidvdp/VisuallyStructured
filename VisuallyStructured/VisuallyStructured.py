@@ -8,7 +8,6 @@ from Filters import Sobel
 from Filters import Blur
 from Grabbers import File
 
-#TODO: Make it multithreaded. Manage threads in controller
 #TODO: Execute Filters
 #TODO: Add option to change block names
 #TODO: Make start block smaller

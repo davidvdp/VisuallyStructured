@@ -55,9 +55,11 @@ class Controller(object):
         self._flowmodel.SetFlow(flow)
         return True
 
-    def GetResults(self) -> ModelResults:
-        results = self._resultmodel.GetResult()
-        return results
+    def GetResults(self, block=None) -> ModelResults:
+        results = self._resultmodel.get_result()
+        if block == None:
+            return results
+        return results.find_all_results_for_block_name(block.name)
 
     def AddBlock(self, blocktype, col=0, afterblock=None, beforeblock=None):
         factory = FlowBlockFactory()
@@ -79,7 +81,7 @@ class Controller(object):
             self._flowmodel.SetFlow(flow)
 
     def OpenPropertiesWindowsFor(self,block):
-        self._view.viewproperties.LoadProperties(block)
+        self._view.viewproperties.load_properties(block)
 
     def SetVariableValueByID(self, id, value):
         blockname = id.split(".")[0]

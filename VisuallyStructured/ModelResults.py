@@ -1,5 +1,6 @@
 from SubjectObserver import Subject
 from Variables import *
+from FlowBlocks import FlowBlock
 
 class ModelResults(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""
@@ -28,14 +29,19 @@ class ModelResults(Subject):
                         result[keyflowblock+"."+key+"."+key2] = val2
             return result
 
+        def find_all_results_for_block_name(self, blockname):
+            return self._results.get(blockname)
 
     def __init__(self):
         super().__init__()
         self._results = ModelResults.Results()
 
-    def GetResult(self):
+    def get_result(self) -> Results:
+        """
+        Returns all results that are kept here, or optionally for on specific step
+        :return: results
+        """
         return self._results
-
 
     def OnFlowModelChange(self,flow):
         """Removes all blocks from results that have been removed from flow, keeps data of blocks that are kept and adds new blocks"""
@@ -52,7 +58,7 @@ class ModelResults(Subject):
         self._results.SetResultDict(oldresults)
         self._notify()
 
-    def AddResult(self,flowblock):
+    def add_result(self, flowblock: FlowBlock):
         if flowblock is None:
             return
         if flowblock.OutputVars is None or len(flowblock.OutputVars) is 0:

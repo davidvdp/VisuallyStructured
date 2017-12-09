@@ -74,16 +74,22 @@ class FlowBlock(object):
         self._parent = parent
 
     def _destroy(self):
-        '''This is used to forget this block. Used when the flow is updates.'''
+        '''This is used to forget this block. Used when the flow is updated.'''
         self._w.destroy()
         self._w.pack_forget()
 
-    def drawArrow(self, w, start, end):
-        w.create_line(start[0], start[1], end[0], end[1])
+    def draw_arrow(self, start, end):
+        """
+        Draws arrow from bottom of block to end of block frame.
+        :param start: start coordinates as a tuple of the arrow
+        :param end: end coordinates as a tuple of the arrow
+        :return:
+        """
+        self._w.create_line(start[0], start[1], end[0], end[1])
         sizeArrowPoint = 10
         pointsPolygon = [end[0], end[1], end[0] - sizeArrowPoint / 2, end[1] - sizeArrowPoint,
                          end[0] + sizeArrowPoint / 2, end[1] - sizeArrowPoint]
-        w.create_polygon(pointsPolygon)
+        self._w.create_polygon(pointsPolygon)
 
     def _onClickColoring(self,event):
         if (event.type is EventType.ButtonPress):
@@ -142,10 +148,11 @@ class FlowBlock(object):
 class FlowStartBlock(FlowBlock):
     """Circle that represents the start of the flow and image source"""
     def __init__(self, master):
-        super(FlowStartBlock,self).__init__(master, "Start")
-        self._block = self._w.create_oval(2, 2, 100, 100, fill=self._color)
-        self._w.create_text(50,50,text="Start")
-        self.drawArrow(self._w,(50,100),(50,150))
+        height = 100
+        super(FlowStartBlock,self).__init__(master, "Start", height=height)
+        self._block = self._w.create_oval(2, 2, 100, 50, fill=self._color)
+        self._w.create_text(50,25,text="Start")
+        self.draw_arrow( (50, 50), (50, height))
 
     def OnLeftClick(self,event):
         pass
@@ -157,7 +164,7 @@ class FlowActionBlock(FlowBlock):
         super(FlowActionBlock,self).__init__(master, name, flowblockobject=flowblockobject)
         self._block = self._w.create_rectangle(2, 2, 100, 100, fill=self._color)
         self._w.create_text(50,50,text=name)
-        self.drawArrow(self._w,(50,100),(50,150))
+        self.draw_arrow((50, 100), (50, 150))
 
     def OnRightClick(self,event):
         try:

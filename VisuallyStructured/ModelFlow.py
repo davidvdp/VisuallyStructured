@@ -27,7 +27,7 @@ class ModelFlow(Subject):
     def ExecuteStepByStep(self):
         blocksExecuted = self._flow.ExecuteStepByStep()
         for block in blocksExecuted:
-            self.__modelresult.AddResult(block)
+            self.__modelresult.add_result(block)
 
     def load_flow_from_file(self, file_name: str):
         self._flow.load_from(file_name)
