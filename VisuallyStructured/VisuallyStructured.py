@@ -8,14 +8,12 @@ from Filters import Sobel
 from Filters import Blur
 from Grabbers import File
 
-#TODO: Add save option (Save as... and Save)
-#TODO: Show save state.
-#TODO: Save last used settings.
 #TODO: Make it multithreaded. Manage threads in controller
 #TODO: Execute Filters
 #TODO: Add option to change block names
 #TODO: Make start block smaller
 
+#TODO: Show save state.
 #TODO: Add conditions / multiple columns
 #TODO: Allow for the use of del ctrl-c, ctrl-v etc.
 #TODO: Make sure that all user events have a try catch

@@ -86,7 +86,7 @@ class Controller(object):
         block.SetVariableValueByID(id, value=value)
         self._flowmodel.SetFlow(flow)
 
-    def StartFlow(self):
+    def ExecuteNextStepLevel(self):
         self._flowmodel.ExecuteStepByStep()
 
     def NewFlow(self):

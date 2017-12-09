@@ -22,7 +22,7 @@ class ModelFlow(Subject):
         self._flow = flow
         self._flow.save()
         self.__modelresult.OnFlowModelChange(flow)
-        self.__notify()
+        self._notify()
 
     def ExecuteStepByStep(self):
         blocksExecuted = self._flow.ExecuteStepByStep()
@@ -31,7 +31,7 @@ class ModelFlow(Subject):
 
     def load_flow_from_file(self, file_name: str):
         self._flow.load_from(file_name)
-        self.__notify()
+        self._notify()
 
     def save_flow_to_file(self, file_name: str):
         self._flow.save_to(file_name)
