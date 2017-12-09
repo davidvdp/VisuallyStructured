@@ -10,7 +10,7 @@ from Grabbers import File
 
 #TODO: Execute Filters
 #TODO: Add option to change block names
-#TODO: Make start block smaller
+#TODO: Make sure block name can only exist once
 
 #TODO: Show save state.
 #TODO: Add conditions / multiple columns
@@ -18,6 +18,8 @@ from Grabbers import File
 #TODO: Make sure that all user events have a try catch
 #TODO: Think of a name. Visico, VisuallyScructured
 #TODO: Add ruler profile and histogram options for image analysis
+#TODO: Add Icons for grabber, filter, meas and condition
+#TODO: When adding blocks to a already saved and loaded flw name is not automatically indexed like Sobel_1 Sobel_2 etc
 
 
 def setLogging(settings):

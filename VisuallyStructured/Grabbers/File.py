@@ -8,6 +8,7 @@ import cv2
 import logging
 
 class FileGrabber(FlowBlockGrabber):
+    type_name = "File"
     def __init__(self,name="File"):
         super().__init__(name=name)
         self.SubVariables = {"Dir_or_File": PathVar()}

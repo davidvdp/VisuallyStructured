@@ -46,7 +46,7 @@ class ViewFlow(Observer,View):
 
         # then add all blocks from flow
         while startBlock is not None:
-            self._currentFlowBlocks.append(FlowActionBlock(self, startBlock.name, startBlock))
+            self._currentFlowBlocks.append(FlowActionBlock(self, startBlock))
             nextSteps =  startBlock.GetNextSteps()
             if len(nextSteps):
                 startBlock = nextSteps[0]
@@ -58,8 +58,8 @@ class ViewFlow(Observer,View):
 
 
 class FlowBlock(object):
-    def __init__(self,parent, name, flowblockobject=None,height=150):
-        self._flowBlockObject = flowblockobject
+    def __init__(self, parent, name, flow_block_object=None, height=150):
+        self._flowBlockObject = flow_block_object
         self._colorHover = "white"
         self._colorClick = "grey"
         self._color = "lightblue"
@@ -160,10 +160,12 @@ class FlowStartBlock(FlowBlock):
 
 class FlowActionBlock(FlowBlock):
     """Square that represents a flow action"""
-    def __init__(self, master, name, flowblockobject):
-        super(FlowActionBlock,self).__init__(master, name, flowblockobject=flowblockobject)
+    def __init__(self, master, flow_block_object: FlowBlock):
+        super(FlowActionBlock,self).__init__(master, name=flow_block_object.name, flow_block_object=flow_block_object)
         self._block = self._w.create_rectangle(2, 2, 100, 100, fill=self._color)
-        self._w.create_text(50,50,text=name)
+        self._w.create_text(50,50,text=flow_block_object.name)
+        small = Font(size=7, weight='bold')
+        self._w.create_text(4, 4, text=flow_block_object.type,anchor="nw", font=small)
         self.draw_arrow((50, 100), (50, 150))
 
     def OnRightClick(self,event):

@@ -5,6 +5,7 @@ import cv2
 
 class Blur(FlowBlockFilter):
     """Class that implements a sobel kernel filter"""
+    type_name = "Blur"
     def __init__(self, name="Blur"):
         super().__init__(name=name)
         self.SubVariables = {"Kernel_Size": IntPointVar(x=IntVar(min=3),y=IntVar(min=3))}

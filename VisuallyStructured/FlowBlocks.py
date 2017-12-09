@@ -78,10 +78,18 @@ class FlowBlockFactory(object):
 
 class FlowBlock(Var):
     """A flow block that holds the information on what block or blocks to execute next"""
+    type_name = "Flow_Block"
     def __init__(self, name="Generic"):
         super().__init__(name=name)
         self._nextSteps = []
         self.OutputVars = None
+
+    @property
+    def type(self):
+        if self.__class__.__bases__[0].type_name == "Flow_Block":
+            return self.__class__.type_name
+        return self.__class__.__bases__[0].type_name + "." + self.__class__.type_name
+
 
     def GetNextSteps(self):
         return self._nextSteps
@@ -96,6 +104,7 @@ class FlowBlock(Var):
 
 class FlowBlockFilter(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different filters."""
+    type_name = "Filter"
     def __init__(self, name="Filter"):
         super().__init__(name)
 
@@ -104,6 +113,7 @@ class FlowBlockFilter(FlowBlock):
 
 class FlowBlockMeasurement(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different measurements."""
+    type_name = "Measurement"
     def __init__(self, name="Measurement"):
         super().__init__(name)
 
@@ -112,6 +122,7 @@ class FlowBlockMeasurement(FlowBlock):
 
 class FlowBlockCondition(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different conditions."""
+    type_name = "Condition"
     def __init__(self, name="Condition"):
         super().__init__(name)
 
@@ -120,6 +131,7 @@ class FlowBlockCondition(FlowBlock):
 
 class FlowBlockGrabber(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different conditions."""
+    type_name = "Grabber"
     def __init__(self, name="Grabber"):
         super().__init__(name)
         self.OutputVars = {"Image": ImageVar()}
