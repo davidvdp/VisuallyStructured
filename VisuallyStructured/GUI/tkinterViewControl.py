@@ -31,6 +31,6 @@ class ViewControl(Observer,View):
 
 
     def FlowNextStep(self):
-        self._parent.controller.ExecuteNextStepLevel()
+        self._parent.controller.flow.ExecuteNextStepLevel()
         #logging.warning("Steppingg though flow has not been implemented yet.")
         #raise NotImplementedError("Steppingg though flow has not been implemented yet.")

@@ -27,7 +27,7 @@ class ViewMenu(View):
 
     def onNewFile(self):
         if messagebox.askyesno("New Flow", "Are you sure you want to start a new flow?\nUnsaved work will be lost."):
-            self.get_controller().NewFlow()
+            self.get_controller().flow.NewFlow()
 
     def on_open_file(self):
         last_selected_dir = self.get_controller().settings.last_selected_dir
@@ -38,7 +38,7 @@ class ViewMenu(View):
         if filename == None:
             return
 
-        self.get_controller().load_flow_from_file(filename)
+        self.get_controller().flow.load_flow_from_file(filename)
 
     def on_save_file(self):
         last_selected_dir = self.get_controller().settings.last_selected_dir
@@ -49,7 +49,7 @@ class ViewMenu(View):
         if filename == None:
             return
 
-        self.get_controller().save_flow_to_file(filename)
+        self.get_controller().flow.save_flow_to_file(filename)
 
     def onAbout(self):
         print("onAbout not implemented")

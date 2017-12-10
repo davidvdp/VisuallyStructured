@@ -28,7 +28,7 @@ class ViewProperties(Observer,View):
             value = self.entryValueStringVar.get()
             newvalue = self.parent.block.set_variable_value_by_id(self.id, value=value)
             self.entryValueStringVar.set(newvalue)
-            self.parent.parent.controller.set_variable_value_by_id(self.id, value=newvalue)
+            self.parent.parent.controller.flow.set_variable_value_by_id(self.id, value=newvalue)
 
         def OnExternalValueChange(self,value=None):
             print(self.optionMenuStringVar.get())
@@ -122,7 +122,7 @@ class ViewProperties(Observer,View):
                 varField.buttonSave = Button(self.labelFrameInput, text="Save", command=varField.OnValueSave)
 
                 #self.parent.controller.set_variable_value_by_id()
-
+                #self.parent.controller.ge
                 varField.optionMenuOptions = ["egg","bunny","chicken"]
 
                 #self.externalvalues.append(OptionMenu(self.labelFrameInput, "", *options, command=lambda index=index: self.__onExternalValueChange))

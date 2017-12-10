@@ -23,7 +23,7 @@ class ViewFlow(Observer,View):
 
     def Update(self):
         # get current flow
-        startBlock = self.get_controller().GetFlow().GetStartBlock()
+        startBlock = self.get_controller().flow.GetFlow().GetStartBlock()
 
         # clear everything
         while len(self._currentFlowBlocks) is not 0:
@@ -130,7 +130,7 @@ class FlowBlockGUI(object):
 
     def delete(self):
         '''Sends a remove request to the controller. The actual removal is done with an update of the flow.'''
-        self._parent._parent.controller.RemoveBlock(self._flowBlockObject)
+        self._parent._parent.controller.flow.RemoveBlock(self._flowBlockObject)
 
 
 
@@ -156,13 +156,13 @@ class FlowBlockGUI(object):
 
         dialog = RenameDialog(self._parent)
         self._parent._frame.wait_window(dialog.top)
-        self._parent.get_controller().change_name_of_block(self._flowBlockObject, dialog.new_name)
+        self._parent.get_controller().flow.change_name_of_block(self._flowBlockObject, dialog.new_name)
 
         #self.parent.parent.controller.SetVariableValueByID(self.id, value=newvalue)
 
     def ContextFlowBlockSelected(self, type):
         logging.info("Adding flowblock of type %s" %type)
-        self._parent._parent.controller.AddBlock(blocktype=type,afterblock=self._flowBlockObject)
+        self._parent._parent.controller.flow.AddBlock(blocktype=type,afterblock=self._flowBlockObject)
 
     def OnLeftClick(self,event):
         logging.warning("OnLeftClick was not implemented for this type op block.")
