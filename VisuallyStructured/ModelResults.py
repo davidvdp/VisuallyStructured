@@ -1,6 +1,7 @@
 from SubjectObserver import Subject
 from Variables import *
 from FlowBlocks import FlowBlock
+from copy import deepcopy
 
 class ModelResults(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""

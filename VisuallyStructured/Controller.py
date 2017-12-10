@@ -99,17 +99,25 @@ class Controller(object):
 
     def ExecuteNextStepLevel(self):
         class task(ThreadPool.Task):
-            def __init__(self, name, function_handle):
+            def __init__(self, name, function_handle_execute, function_handle_add_result):
                 super().__init__(name)
-                self.__function_handle = function_handle
+                self.__function_handle_execute = function_handle_execute
+                self.__function_handle_add_result = function_handle_add_result
             def execute(self):
-                self.__function_handle()
+                blocks_executed = self.__function_handle_execute()
+                self.__function_handle_add_result(blocks_executed)
 
-        task_step = task("ExecuteNextStepLevel",self._flowmodel.ExecuteStepByStep)
+        task_step = task("ExecuteNextStepLevel", self._flowmodel.ExecuteStepByStep, self.add_blocks_to_result)
 
         self.threadpool.add_task(task_step)
 
         #self._flowmodel.ExecuteStepByStep()
+
+    def add_blocks_to_result(self, blocks_with_result):
+        for block in blocks_with_result:
+            self._resultmodel.add_result(block)
+            block.clean_output_data()
+
 
     def NewFlow(self):
         flow = Flow()

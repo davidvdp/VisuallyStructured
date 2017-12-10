@@ -77,12 +77,16 @@ class FlowBlockFactory(object):
         return getattr(self.instance, name)
 
 class FlowBlock(Var):
-    """A flow block that holds the information on what block or blocks to execute next"""
+    """
+    A flow block that holds the information on what block or blocks to execute next.
+    OutputVars is a temporary storage for results of measurements and will be cleared by the controller by a result
+    update (clean_output_data will be called).
+    """
     type_name = "Flow_Block"
     def __init__(self, name="Generic"):
         super().__init__(name=name)
         self._nextSteps = []
-        self.OutputVars = None
+        self.OutputVars = dict()
 
     @property
     def type(self):
@@ -95,12 +99,21 @@ class FlowBlock(Var):
         return self._nextSteps
 
     def SetNextStep(self, flowBlock, col=0):
-        while len(self._nextSteps) <= col:
+        while len(self._nextSteps) <= col: # is col is not 0 than fill with nones
             self._nextSteps.append(None)
         self._nextSteps[col] = flowBlock
 
     def Execute(self):
+        """
+        This function needs to be implemented. It is called when executing a block.
+        :return:
+        """
         raise NotImplementedError()
+
+    def clean_output_data(self):
+        if self.OutputVars is not None:
+            for key, value in self.OutputVars.items():
+                value.__init__()
 
 class FlowBlockFilter(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different filters."""

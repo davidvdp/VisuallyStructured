@@ -2,6 +2,7 @@ from SubjectObserver import Subject
 import logging
 import os
 import pickle
+import copy
 
 class ModelFlow(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""
@@ -26,8 +27,7 @@ class ModelFlow(Subject):
 
     def ExecuteStepByStep(self):
         blocksExecuted = self._flow.ExecuteStepByStep()
-        for block in blocksExecuted:
-            self.__modelresult.add_result(block)
+        return blocksExecuted
 
     def load_flow_from_file(self, file_name: str):
         self._flow.load_from(file_name)
@@ -53,6 +53,11 @@ class Flow(object):
     def save_to(self, destination_file: str):
         if os.path.exists(destination_file):
             os.remove(destination_file)
+
+        # remove al np images to minimize file size
+        #flow_to_save = copy.copy(self)
+        #flow_to_save.
+
         with open(destination_file, 'wb') as f:
             pickle.dump(self.__dict__, f)
         logging.info("Saved flow to file: %s." %destination_file)
@@ -80,7 +85,7 @@ class Flow(object):
         while len(current.GetNextSteps()) > col:
             next = current.GetNextSteps()[col]
             if next is None:
-                break;
+                break
             current = next
         return current
 

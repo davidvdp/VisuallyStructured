@@ -39,11 +39,11 @@ class ViewFlow(Observer,View):
             self._addblock = None
 
         # first add start block
-        self._startCircle = FlowStartBlock(self)
+        self._startCircle = FlowStartBlockGUI(self)
 
         # then add all blocks from flow
         while startBlock is not None:
-            self._currentFlowBlocks.append(FlowActionBlock(self, startBlock))
+            self._currentFlowBlocks.append(FlowActionBlockGUI(self, startBlock))
             nextSteps =  startBlock.GetNextSteps()
             if len(nextSteps):
                 startBlock = nextSteps[0]
@@ -51,10 +51,10 @@ class ViewFlow(Observer,View):
                 startBlock = None
 
         # finish by adding a + block for adding extra blocks
-        self._addblock = FlowAddBlock(self)
+        self._addblock = FlowAddBlockGUI(self)
 
 
-class FlowBlock(object):
+class FlowBlockGUI(object):
     def __init__(self, parent: ViewFlow, name: str, flow_block_object=None, height=150):
         self._flowBlockObject = flow_block_object
         self._colorHover = "white"
@@ -171,11 +171,11 @@ class FlowBlock(object):
         logging.warning("OnRightClick was not implemented for this type op block.")
 
 
-class FlowStartBlock(FlowBlock):
+class FlowStartBlockGUI(FlowBlockGUI):
     """Circle that represents the start of the flow and image source"""
     def __init__(self, master):
         height = 100
-        super(FlowStartBlock,self).__init__(master, "Start", height=height)
+        super(FlowStartBlockGUI, self).__init__(master, "Start", height=height)
         self._block = self._w.create_oval(2, 2, 100, 50, fill=self._color)
         self._w.create_text(50,25,text="Start")
         self.draw_arrow( (50, 50), (50, height))
@@ -184,10 +184,10 @@ class FlowStartBlock(FlowBlock):
         pass
 
 
-class FlowActionBlock(FlowBlock):
+class FlowActionBlockGUI(FlowBlockGUI):
     """Square that represents a flow action"""
-    def __init__(self, master, flow_block_object: FlowBlock):
-        super(FlowActionBlock,self).__init__(master, name=flow_block_object.name, flow_block_object=flow_block_object)
+    def __init__(self, master, flow_block_object: FlowBlockGUI):
+        super(FlowActionBlockGUI, self).__init__(master, name=flow_block_object.name, flow_block_object=flow_block_object)
         self._block = self._w.create_rectangle(2, 2, 100, 100, fill=self._color)
         self._w.create_text(50,50,text=flow_block_object.name)
         small = Font(size=7, weight='bold')
@@ -212,10 +212,10 @@ class FlowActionBlock(FlowBlock):
             logging.error("Unexpected error: %s; " %(sys.exc_info()[0],sys.exc_info()[1]))
 
 
-class FlowAddBlock(FlowBlock):
+class FlowAddBlockGUI(FlowBlockGUI):
     """Square that represents a flow action"""
     def __init__(self, master):
-        super(FlowAddBlock,self).__init__(master, "+", height=50)
+        super(FlowAddBlockGUI, self).__init__(master, "+", height=50)
         helv36 = Font(family='Helvetica',size=36, weight='bold')
         self._block = self._w.create_text(50,25,text="+",font=helv36, fill=self._color)
 

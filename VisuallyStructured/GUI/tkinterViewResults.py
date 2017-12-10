@@ -26,6 +26,7 @@ class ImageTab(Frame):
         self._sbarHorizontal.config(command=self._canvas.xview)
         self._canvas.config(yscrollcommand=self._sbarVertical.set)
         self._canvas.config(xscrollcommand=self._sbarHorizontal.set)
+        self._canvas.config(background='black')
 
         self._scale = 1
         self._name = name
@@ -148,24 +149,35 @@ class ViewResults(Observer, View):
         self._notebook = Notebook(self._frame, name="nb")
         self._notebook.columnconfigure(0, weight=1)
         self._notebook.rowconfigure(0, weight=1)
+        self._notebook.config()
+        self._notebook.grid(sticky=NSEW)
         self._notebook.grid(sticky=NSEW)
         self._tabs = []
         self._results = None
 
-        image = cv2.imread("TestImages\image.jpg", 1)
-        image2 = cv2.imread("TestImages\image2.jpg", 0)
+        #TODO: Work around below should be fixed; need to create a tab first and delete it, or background is old image in constant scale.
+        name_init = "initialization_image"
+        self.AddTab(np.zeros((1,1,3),dtype=np.uint8), name_init)
+        self.RemoveTab(name_init)
 
-        self.AddTab(image,"image1")
-        self.AddTab(image2,"image2")
+    def RemoveTab(self, name):
+        for tab in self._tabs:
+            if name is tab.GetName():
+                tab.destroy()
+                self._tabs.remove(tab)
 
     def AddTab(self, npimage, name):
+
+        if npimage is None:
+            return
+
         for tab in self._tabs:
             if tab.GetName() == name:
-                if npimage is not None:
-                    tab.SetImage(npimage=npimage)
+                tab.SetImage(npimage=npimage)
                 return
 
         tab = ImageTab(name=name,notebook=self._notebook)
+
         tab.SetImage(npimage=npimage)
         self._tabs.append(tab)
 
