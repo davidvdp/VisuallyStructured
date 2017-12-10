@@ -44,6 +44,9 @@ class ModelResults(Subject):
         """
         return self._results
 
+    def get_all_of_type(self, type):
+        return self._results.FindAllOfType(type)
+
     def OnFlowModelChange(self,flow):
         """Removes all blocks from results that have been removed from flow, keeps data of blocks that are kept and adds new blocks"""
         listofnames = flow.GetListOfBlockNames()

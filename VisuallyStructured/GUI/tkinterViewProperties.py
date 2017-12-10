@@ -3,12 +3,13 @@ from GUI.GUIInterface import *
 from FlowBlocks import FlowBlock
 from tkinter import filedialog
 from SubjectObserver import Observer
+import GUI.tkinterGUI
 
 class ViewProperties(Observer,View):
     """Takes care of the presentation of the Flow diagram."""
 
     class VariableField(object):
-        def __init__(self, id, val, parent):
+        def __init__(self, id, val, parent: GUI):
             self.parent = parent
             self.id = id
             self.val = val
@@ -31,12 +32,12 @@ class ViewProperties(Observer,View):
             self.parent.parent.controller.flow.set_variable_value_by_id(self.id, value=newvalue)
 
         def OnExternalValueChange(self,value=None):
-            print(self.optionMenuStringVar.get())
+            selected_value = self.optionMenuStringVar.get()
+            self.entryValueStringVar.set(selected_value)
 
         def OnOpenDir(self):
             directory = filedialog.askdirectory()
             self.entryValueStringVar.set(directory)
-
 
         def OnOpenFile(self):
             filename = filedialog.askopenfilename(title="Select File", filetypes=(("image files","*.jpg, *.bmp, *.png"),("all files","*.*")))
@@ -122,13 +123,17 @@ class ViewProperties(Observer,View):
                 varField.buttonSave = Button(self.labelFrameInput, text="Save", command=varField.OnValueSave)
 
                 #self.parent.controller.set_variable_value_by_id()
-                #self.parent.controller.ge
-                varField.optionMenuOptions = ["egg","bunny","chicken"]
+                all_results = self.parent.controller.results.get_results_of_type(key.split(".")[-1])
+                drop_down = []
+                for key, val in all_results.items():
+                    drop_down.append(key)
 
-                #self.externalvalues.append(OptionMenu(self.labelFrameInput, "", *options, command=lambda index=index: self.__onExternalValueChange))
-                varField.optionMenuStringVar = StringVar(self.labelFrameInput)
-                varField.optionMenuStringVar.set("")
-                varField.optionMenuValue = OptionMenu(self.labelFrameInput, varField.optionMenuStringVar, *varField.optionMenuOptions, command=varField.OnExternalValueChange)
+                if len(drop_down) > 0:
+                    varField.optionMenuOptions = drop_down
+                    #self.externalvalues.append(OptionMenu(self.labelFrameInput, "", *options, command=lambda index=index: self.__onExternalValueChange))
+                    varField.optionMenuStringVar = StringVar(self.labelFrameInput)
+                    varField.optionMenuStringVar.set("")
+                    varField.optionMenuValue = OptionMenu(self.labelFrameInput, varField.optionMenuStringVar, *varField.optionMenuOptions, command=varField.OnExternalValueChange)
 
                 limits = block.GetLimits(key)
                 limitsAvailable = False
@@ -171,7 +176,7 @@ class ViewProperties(Observer,View):
             self.labelFrameOutput.destroy()
 
         #get results, if available, for this block
-        results = self.parent.controller.results.GetResults(block)
+        results = self.parent.controller.results.get_results_for_block(block)
 
         if not results == None and len(results) > 0:
             # there are results to display
@@ -184,12 +189,3 @@ class ViewProperties(Observer,View):
 
             for i,field in enumerate(self.variable_fields_out):
                 field.add_all_to_grid(i)
-
-        # var_ids_out = []
-        # if block.OutputVars:
-        #     var_ids_out = block.OutputVars.GetVariableIDs()
-        #
-        # if len(var_ids_out) > 0:
-        #     #there are some output variables available
-        #     self.labelFrameOutput = LabelFrame(self._frame, text=block.name)
-        #     self.labelFrameOutput.grid(sticky=NSEW)

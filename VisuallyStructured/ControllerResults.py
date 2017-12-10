@@ -11,11 +11,14 @@ class ControllerResults(object):
         self._resultmodel = ModelResults()
         logging.info("Result model instantiated.")
 
-    def GetResults(self, block=None) -> ModelResults:
+    def get_results_for_block(self, block=None) -> ModelResults:
         results = self._resultmodel.get_result()
         if block == None:
             return results
         return results.find_all_results_for_block_name(block.name)
+
+    def get_results_of_type(self, type: type):
+        return self._resultmodel.get_all_of_type(type)
 
     def add_blocks_to_result(self, blocks_with_result):
         for block in blocks_with_result:
