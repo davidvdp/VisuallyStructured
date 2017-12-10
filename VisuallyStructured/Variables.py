@@ -59,7 +59,7 @@ class Var(object):
         return "\n" + tabs + self.name + printout
 
     def GetLimits(self,id):
-        obj = self.GetVariableByID(id)
+        obj = self.get_variable_by_id(id)
         if obj is None:
             return None
         return obj.Limits
@@ -76,15 +76,15 @@ class Var(object):
                 varids[name + self.__delimiter + keysub] = valsub
         return varids
 
-    def SetVariableValueByID(self, id, value):
+    def set_variable_value_by_id(self, id, value):
         if self.Stub():
             self.value = value
             return self.value
-        obj = self.GetVariableByID(id)
+        obj = self.get_variable_by_id(id)
         obj.value = value
         return obj.value
 
-    def GetVariableByID(self, id):
+    def get_variable_by_id(self, id):
         splitted_id = id.split(self.__delimiter)[1:]
         obj = self
         for subid in splitted_id:
@@ -97,12 +97,17 @@ class Var(object):
                 obj = nextObj
         return obj
 
-    def GetVariablesByType(self, type):
+    def get_variables_by_type(self, type: str):
+        """
+        Gets all variables that are of the specified type. This is the type as specified in
+        :param type:
+        :return:
+        """
         vars = dict()
         ids = self.GetVariableIDs()
         for key, var in ids.items():
             if type in key:
-                obj = self.GetVariableByID(key.split("type")[0]+type)
+                obj = self.get_variable_by_id(key.split("type")[0] + type)
                 if not obj:
                     continue
                 vars[key] = obj

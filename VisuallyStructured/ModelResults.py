@@ -24,7 +24,7 @@ class ModelResults(Subject):
             result = dict()
             for keyflowblock, valflowblock in self._results.items():
                 for key, val in valflowblock.items():
-                    result2 = val.GetVariablesByType(type)
+                    result2 = val.get_variables_by_type(type)
                     for key2, val2 in result2.items():
                         result[keyflowblock+"."+key+"."+key2] = val2
             return result

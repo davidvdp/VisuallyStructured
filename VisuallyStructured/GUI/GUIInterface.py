@@ -2,6 +2,7 @@ from tkinter import *
 from GUI.tkinterGUIHelper import *
 import Controller
 
+
 """
 View Class that other views derive from.
 """
@@ -34,7 +35,7 @@ class View(object):
     def Start(self):
         raise NotImplementedError
 
-    def GetController(self) -> Controller :
+    def get_controller(self) -> Controller :
         return self._parent.controller
 
     def SetHeight(self,height):

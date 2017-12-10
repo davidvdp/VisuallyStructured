@@ -74,20 +74,27 @@ class Controller(object):
             logging.error("Could not add block; the type of block does not exist.")
             return False
 
-    def RemoveBlock(self, blockToRemove):
-        if blockToRemove:
+    def RemoveBlock(self, block_to_remove: FlowBlock ):
+        if block_to_remove:
             flow = self._flowmodel.GetFlow()
-            flow.RemoveBlock(blockToRemove)
+            flow.RemoveBlock(block_to_remove)
             self._flowmodel.SetFlow(flow)
 
     def OpenPropertiesWindowsFor(self,block):
         self._view.viewproperties.load_properties(block)
 
-    def SetVariableValueByID(self, id, value):
+    def change_name_of_block(self, block: FlowBlock, new_name: str):
+        if block:
+            flow = self._flowmodel.GetFlow()
+            block_in_flow = flow.GetBlockByName(block.name)
+            block_in_flow.name = new_name
+            self._flowmodel.SetFlow(flow)
+
+    def set_variable_value_by_id(self, id, value):
         blockname = id.split(".")[0]
         flow = self._flowmodel.GetFlow()
         block = flow.GetBlockByName(blockname)
-        block.SetVariableValueByID(id, value=value)
+        block.set_variable_value_by_id(id, value=value)
         self._flowmodel.SetFlow(flow)
 
     def ExecuteNextStepLevel(self):

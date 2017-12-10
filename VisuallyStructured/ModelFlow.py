@@ -51,6 +51,8 @@ class Flow(object):
         self.save_to(flow_file)
 
     def save_to(self, destination_file: str):
+        if os.path.exists(destination_file):
+            os.remove(destination_file)
         with open(destination_file, 'wb') as f:
             pickle.dump(self.__dict__, f)
         logging.info("Saved flow to file: %s." %destination_file)
@@ -61,10 +63,11 @@ class Flow(object):
         self.load_from(flow_file)
 
     def load_from(self, source_file: str):
-        with open(source_file, 'rb') as f:
-            tmp_dict = pickle.load(f)
-        self.__dict__.update(tmp_dict)
-        logging.info("Loaded flow from file: %s." %source_file)
+        if os.path.isfile(source_file):
+            with open(source_file, 'rb') as f:
+                tmp_dict = pickle.load(f)
+            self.__dict__.update(tmp_dict)
+            logging.info("Loaded flow from file: %s." %source_file)
 
     def GetStartBlock(self):
         return self.__startBlock

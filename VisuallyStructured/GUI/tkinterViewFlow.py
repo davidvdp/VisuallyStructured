@@ -12,11 +12,8 @@ class ViewFlow(Observer,View):
         super().__init__(parent, col=col, row=row, scrollbars=True, sticky=NSEW, root=root)
         self._startCircle = None
         self._addblock = None
-        #self._frameButtons = Frame(parent.root)
-        #self._frameButtons.pack()
 
         self._currentFlowBlocks = []
-        #self.Update()
 
     def Start(selfs):
         pass
@@ -26,7 +23,7 @@ class ViewFlow(Observer,View):
 
     def Update(self):
         # get current flow
-        startBlock = self.GetController().GetFlow().GetStartBlock()
+        startBlock = self.get_controller().GetFlow().GetStartBlock()
 
         # clear everything
         while len(self._currentFlowBlocks) is not 0:
@@ -58,7 +55,7 @@ class ViewFlow(Observer,View):
 
 
 class FlowBlock(object):
-    def __init__(self, parent, name, flow_block_object=None, height=150):
+    def __init__(self, parent: ViewFlow, name: str, flow_block_object=None, height=150):
         self._flowBlockObject = flow_block_object
         self._colorHover = "white"
         self._colorClick = "grey"
@@ -126,13 +123,42 @@ class FlowBlock(object):
         rmenu.add_cascade(label="Add Block", menu=flowBlockMenu)
         for type in types:
             flowBlockMenu.add_command(label=type, command=lambda t=type: self.ContextFlowBlockSelected(t) )
-        rmenu.add_command(label="Delete", command=self.Delete)
+        rmenu.add_command(label="Delete", command=self.delete)
+        rmenu.add_command(label="Rename...", command=self.rename)
 
         self._parent._frame.tk.call('tk_popup', rmenu, x, y)
 
-    def Delete(self):
+    def delete(self):
         '''Sends a remove request to the controller. The actual removal is done with an update of the flow.'''
         self._parent._parent.controller.RemoveBlock(self._flowBlockObject)
+
+
+
+    def rename(self):
+        '''Opens a dialog asking user to enter a new name'''
+        class RenameDialog:
+            def __init__(self, parent):
+                top = self.top = Toplevel(parent._frame)
+
+                Label(top, text="New Name").pack()
+
+                self.e = Entry(top)
+                self.e.pack(padx=5)
+
+                b = Button(top, text="OK", command=self.ok)
+                b.pack(pady=5)
+
+                self.new_name = None
+
+            def ok(self):
+                self.new_name = self.e.get()
+                self.top.destroy()
+
+        dialog = RenameDialog(self._parent)
+        self._parent._frame.wait_window(dialog.top)
+        self._parent.get_controller().change_name_of_block(self._flowBlockObject, dialog.new_name)
+
+        #self.parent.parent.controller.SetVariableValueByID(self.id, value=newvalue)
 
     def ContextFlowBlockSelected(self, type):
         logging.info("Adding flowblock of type %s" %type)
@@ -179,7 +205,7 @@ class FlowActionBlock(FlowBlock):
     def OnLeftClick(self,event):
         '''This loads the parameters of the block in the properties window'''
         try:
-            self._parent.GetController().OpenPropertiesWindowsFor(self._flowBlockObject)
+            self._parent.get_controller().OpenPropertiesWindowsFor(self._flowBlockObject)
         except:
             if (__debug__):
                 raise sys.exc_info()[0](sys.exc_info()[1])
@@ -190,10 +216,8 @@ class FlowAddBlock(FlowBlock):
     """Square that represents a flow action"""
     def __init__(self, master):
         super(FlowAddBlock,self).__init__(master, "+", height=50)
-        #self._block = self._w.create_oval(2, 2, 100, 100, fill=self._color)
         helv36 = Font(family='Helvetica',size=36, weight='bold')
         self._block = self._w.create_text(50,25,text="+",font=helv36, fill=self._color)
-        #self._w.create_text(50,50,text="+")
 
     def OnLeftClick(self,event):
         try:

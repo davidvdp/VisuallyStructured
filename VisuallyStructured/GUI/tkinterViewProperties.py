@@ -26,9 +26,9 @@ class ViewProperties(Observer,View):
 
         def OnValueSave(self):
             value = self.entryValueStringVar.get()
-            newvalue = self.parent.block.SetVariableValueByID(self.id, value=value)
+            newvalue = self.parent.block.set_variable_value_by_id(self.id, value=value)
             self.entryValueStringVar.set(newvalue)
-            self.parent.parent.controller.SetVariableValueByID(self.id, value=newvalue)
+            self.parent.parent.controller.set_variable_value_by_id(self.id, value=newvalue)
 
         def OnExternalValueChange(self,value=None):
             print(self.optionMenuStringVar.get())
@@ -57,17 +57,20 @@ class ViewProperties(Observer,View):
                 self.buttonOpenFile.destroy()
 
         def add_all_to_grid(self, row: int):
-            self.labelKey.grid(column=0, row=row)
-            self.entryValue.grid(column=1, row=row)
-            self.buttonSave.grid(column=2, row=row)
-            self.labelLimit.grid(column=3, row=row)
-            self.optionMenuValue.grid(column=4, row=row)
+            if self.labelKey:
+                self.labelKey.grid(column=0, row=row)
+            if self.entryValue:
+                self.entryValue.grid(column=1, row=row)
+            if self.buttonSave:
+                self.buttonSave.grid(column=2, row=row)
+            if self.labelLimit:
+                self.labelLimit.grid(column=3, row=row)
+            if self.optionMenuValue:
+                self.optionMenuValue.grid(column=4, row=row)
             if self.buttonOpenDir:
                 self.buttonOpenDir.grid(column=5, row=row)
             if self.buttonOpenFile:
                 self.buttonOpenFile.grid(column=6, row=row)
-
-
 
     def __init__(self, parent, col=0, row=0, columnspan=1):
         super().__init__(parent, col=col, row=row, scrollbars=True, columnspan=columnspan,sticky=NSEW)
@@ -117,6 +120,8 @@ class ViewProperties(Observer,View):
                 varField.entryValueStringVar.set(str(val))
                 varField.entryValue = Entry(self.labelFrameInput, textvariable=varField.entryValueStringVar)
                 varField.buttonSave = Button(self.labelFrameInput, text="Save", command=varField.OnValueSave)
+
+                #self.parent.controller.set_variable_value_by_id()
 
                 varField.optionMenuOptions = ["egg","bunny","chicken"]
 
