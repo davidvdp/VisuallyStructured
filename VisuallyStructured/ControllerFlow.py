@@ -8,22 +8,20 @@ from ThreadPool import ThreadPool
 
 class ControllerFlow(object):
     """
-    Class that seperates controller functions using the flowmodel from other controller functions
+    Class that separates controller flowmodel functions from other controller functions
     """
     def __init__(self, controller: Controller, settings):
         self.__controller = controller
-        self.settings = settings
+        self.__settings = settings
 
         logging.info("Instantiating flow model...")
-        self.__flowmodel = ModelFlow(modelresult=self.__controller._resultmodel, settings=settings)
+        self.__flowmodel = ModelFlow(modelresult=controller.results._resultmodel, settings=settings)
         logging.info("Flow model instantiated.")
 
         flow = self.__flowmodel.GetFlow()
         factory = FlowBlockFactory()
 
-
-
-    def Attach_View(self, view):
+    def attach_view(self, view):
         logging.info("Subscribing flow view to flow model...")
         self.__flowmodel.Attach(view)
         logging.info("Subscribed flow view to flow model.")
@@ -79,7 +77,7 @@ class ControllerFlow(object):
                 blocks_executed = self.__function_handle_execute()
                 self.__function_handle_add_result(blocks_executed)
 
-        task_step = task("ExecuteNextStepLevel", self.__flowmodel.ExecuteStepByStep, self.__controller.add_blocks_to_result)
+        task_step = task("ExecuteNextStepLevel", self.__flowmodel.ExecuteStepByStep, self.__controller.results.add_blocks_to_result)
 
         self.__controller.threadpool.add_task(task_step)
 
@@ -89,7 +87,7 @@ class ControllerFlow(object):
 
     def save_flow_to_file(self, filename: str):
         self.__flowmodel.save_flow_to_file(filename)
-        self.settings.last_flow = filename
+        self.__settings.last_flow = filename
 
     def load_flow_from_file(self, filename: str):
         self.__flowmodel.load_flow_from_file(filename)

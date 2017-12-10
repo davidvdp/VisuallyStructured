@@ -190,7 +190,7 @@ class ViewResults(Observer, View):
             self.AddTab(var.value,name)
 
     def Update(self):
-        self._results = self.get_controller().GetResults()
+        self._results = self.get_controller().results.GetResults()
         self.__findAllImagesAndShow()
 
 

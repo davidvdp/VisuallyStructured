@@ -171,7 +171,7 @@ class ViewProperties(Observer,View):
             self.labelFrameOutput.destroy()
 
         #get results, if available, for this block
-        results = self.parent.controller.GetResults(block)
+        results = self.parent.controller.results.GetResults(block)
 
         if not results == None and len(results) > 0:
             # there are results to display
