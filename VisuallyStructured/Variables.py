@@ -22,6 +22,7 @@ class Var(object):
         self.Limits = None
         self.__delimiter = "."
         self.flowidreference = None
+        self.is_reference = False
 
     @property
     def name(self):
@@ -76,11 +77,13 @@ class Var(object):
                 varids[name + self.__delimiter + keysub] = valsub
         return varids
 
-    def set_variable_value_by_id(self, id, value):
+    def set_variable_value_by_id(self, id, value, is_reference=False):
         if self.Stub():
-            self.value = value
-            return self.value
-        obj = self.get_variable_by_id(id)
+            obj = self
+        else:
+            obj = self.get_variable_by_id(id)
+
+        obj.is_reference = is_reference
         obj.value = value
         return obj.value
 
@@ -164,6 +167,7 @@ class ImageVar(StubVar):
     def __init__(self, image=None, name="Image"):
         super().__init__("Image", name=name)
         self.value = image
+        self.is_reference = False
 
     @property
     def value(self):

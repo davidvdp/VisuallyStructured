@@ -1,6 +1,8 @@
 import logging
 from Variables import *
 
+
+
 class FlowBlockFactory(object):
     """
     Singleton flow block factory. This class can generate all kind of flow blocks that were added with,
@@ -103,9 +105,10 @@ class FlowBlock(Var):
             self._nextSteps.append(None)
         self._nextSteps[col] = flowBlock
 
-    def Execute(self):
+    def execute(self, results_controller):
         """
         This function needs to be implemented. It is called when executing a block.
+        :param results_controller:
         :return:
         """
         raise NotImplementedError()
@@ -120,9 +123,10 @@ class FlowBlockFilter(FlowBlock):
     type_name = "Filter"
     def __init__(self, name="Filter"):
         super().__init__(name)
+        self.OutputVars = {"Image": ImageVar()}
 
-    def Execute(self):
-        logging.info("Executing %s" % self.name)
+    def execute(self, results_controller):
+        raise NotImplementedError()
 
 class FlowBlockMeasurement(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different measurements."""
@@ -130,7 +134,7 @@ class FlowBlockMeasurement(FlowBlock):
     def __init__(self, name="Measurement"):
         super().__init__(name)
 
-    def Execute(self):
+    def execute(self, results_controller):
         logging.info("Executing %s" %self.name)
 
 class FlowBlockCondition(FlowBlock):
@@ -139,7 +143,7 @@ class FlowBlockCondition(FlowBlock):
     def __init__(self, name="Condition"):
         super().__init__(name)
 
-    def Execute(self):
+    def execute(self, results_controller):
         logging.info("Executing %s" % self.name)
 
 class FlowBlockGrabber(FlowBlock):
@@ -149,7 +153,7 @@ class FlowBlockGrabber(FlowBlock):
         super().__init__(name)
         self.OutputVars = {"Image": ImageVar()}
 
-    def Execute(self):
+    def execute(self, results_controller):
         logging.info("Executing %s" % self.name)
 
     def GetResults(self):

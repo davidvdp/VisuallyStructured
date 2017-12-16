@@ -9,7 +9,7 @@ class ViewProperties(Observer,View):
     """Takes care of the presentation of the Flow diagram."""
 
     class VariableField(object):
-        def __init__(self, id, val, parent: GUI):
+        def __init__(self, id, val, parent):
             self.parent = parent
             self.id = id
             self.val = val
@@ -27,9 +27,9 @@ class ViewProperties(Observer,View):
 
         def OnValueSave(self):
             value = self.entryValueStringVar.get()
-            newvalue = self.parent.block.set_variable_value_by_id(self.id, value=value)
+            is_reference = self.parent.parent.controller.results.exists(value) # check if it exists in the results
+            newvalue = self.parent.parent.controller.flow.set_variable_value_by_id(self.id, value=value, is_reference=is_reference )
             self.entryValueStringVar.set(newvalue)
-            self.parent.parent.controller.flow.set_variable_value_by_id(self.id, value=newvalue)
 
         def OnExternalValueChange(self,value=None):
             selected_value = self.optionMenuStringVar.get()

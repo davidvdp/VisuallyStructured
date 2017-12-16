@@ -2,6 +2,7 @@ from queue import Queue
 from queue import Empty
 from threading import Thread
 import logging
+import sys, traceback
 
 class ThreadPool(object):
     class Task(object):
@@ -37,7 +38,13 @@ class ThreadPool(object):
             if self.__extra_debug_info: logging.info("'%s' is waiting for a task." % (thread_id))
             task = self.__task_queue.get()
             if self.__extra_debug_info: logging.info("'%s' got task '%s' from task queue"%(thread_id, task.name))
-            task.execute()
+            try:
+                task.execute()
+            except:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                #formatted_lines =
+                logging.error(traceback.format_exc())
+
             if self.__extra_debug_info: logging.info("'%s' executed task '%s' from task queue" % (thread_id, task.name))
             #task.done()
             #if self.__extra_debug_info: logging.info("'%s' has been set to DONE." % (task.name))

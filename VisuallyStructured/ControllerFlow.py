@@ -60,24 +60,25 @@ class ControllerFlow(object):
             block_in_flow.name = new_name
             self.__flowmodel.SetFlow(flow)
 
-    def set_variable_value_by_id(self, id, value):
+    def set_variable_value_by_id(self, id, value, is_reference=False):
         blockname = id.split(".")[0]
         flow = self.__flowmodel.GetFlow()
         block = flow.GetBlockByName(blockname)
-        block.set_variable_value_by_id(id, value=value)
+        new_value = block.set_variable_value_by_id(id, value=value, is_reference=is_reference) #if outside of min max value might change
         self.__flowmodel.SetFlow(flow)
+        return new_value
 
     def ExecuteNextStepLevel(self):
         class task(ThreadPool.Task):
-            def __init__(self, name, function_handle_execute, function_handle_add_result):
+            def __init__(self, name, function_handle_execute, results):
                 super().__init__(name)
                 self.__function_handle_execute = function_handle_execute
-                self.__function_handle_add_result = function_handle_add_result
+                self.__results = results
             def execute(self):
-                blocks_executed = self.__function_handle_execute()
-                self.__function_handle_add_result(blocks_executed)
+                blocks_executed = self.__function_handle_execute(self.__results)
+                self.__results.add_blocks_to_result(blocks_executed)
 
-        task_step = task("ExecuteNextStepLevel", self.__flowmodel.ExecuteStepByStep, self.__controller.results.add_blocks_to_result)
+        task_step = task("ExecuteNextStepLevel", self.__flowmodel.ExecuteStepByStep, self.__controller.results)
 
         self.__controller.threadpool.add_task(task_step)
 

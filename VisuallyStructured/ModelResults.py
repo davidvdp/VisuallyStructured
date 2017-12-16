@@ -30,8 +30,35 @@ class ModelResults(Subject):
                         result[keyflowblock+"."+key+"."+key2] = val2
             return result
 
-        def find_all_results_for_block_name(self, blockname):
-            return self._results.get(blockname)
+        def find_all_results_for_block_name(self, block_name):
+            return self._results.get(block_name)
+
+        def exists(self, id: str) -> bool:
+            """
+            For now only searches 2 deep
+            :param id: id as a string (e.g. Block1.File)
+            :return: found id
+            """
+            splitted_id = id.split(".")
+            block_name = splitted_id[0]
+            result = self.find_all_results_for_block_name(block_name)
+            if result is None or len(result) == 0:
+                return False
+            if len(splitted_id) == 2:
+                if result.get(splitted_id[1]) is None:
+                    return False
+            return True
+
+        def getvalue(self, id: str):
+            splitted_id = id.split(".")
+            block_name = splitted_id[0]
+            result = self.find_all_results_for_block_name(block_name)
+            if result is None or len(result) == 0:
+                return None
+            if len(splitted_id) < 2:
+                if result.get(splitted_id[1]) is None:
+                    return None
+            return result.get(splitted_id[1])
 
     def __init__(self):
         super().__init__()
@@ -67,5 +94,11 @@ class ModelResults(Subject):
             return
         if flowblock.OutputVars is None or len(flowblock.OutputVars) is 0:
             return
-        self._results.AddToResult(flowblock.name, flowblock.OutputVars)
+        self._results.AddToResult(flowblock.name, deepcopy(flowblock.OutputVars))
         self._notify()
+
+    def exists(self, id: str) -> bool:
+        return self._results.exists(id)
+
+    def getvalue(self, id: str):
+        return self._results.getvalue(id)

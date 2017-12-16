@@ -2,6 +2,7 @@ from SubjectObserver import Subject
 import logging
 import os
 import pickle
+import ControllerResults
 import copy
 
 class ModelFlow(Subject):
@@ -25,8 +26,8 @@ class ModelFlow(Subject):
         self.__modelresult.OnFlowModelChange(flow)
         self._notify()
 
-    def ExecuteStepByStep(self):
-        blocksExecuted = self._flow.ExecuteStepByStep()
+    def ExecuteStepByStep(self, controller_results: ControllerResults):
+        blocksExecuted = self._flow.ExecuteStepByStep(controller_results)
         return blocksExecuted
 
     def load_flow_from_file(self, file_name: str):
@@ -183,7 +184,7 @@ class Flow(object):
     #         for step in nextSteps:
     #             self.__executeStepByStep(step)
 
-    def ExecuteStepByStep(self):
+    def ExecuteStepByStep(self, controller_results: ControllerResults):
         if self.__nextBlocksToBeExecuted is None:
             return None
 
@@ -194,7 +195,7 @@ class Flow(object):
         blocksExecuted = []
         for block in self.__nextBlocksToBeExecuted:
             if block is None: block = self.GetStartBlock()
-            block.Execute()
+            block.execute(controller_results)
             blocksExecuted.append(block)
             nextBlocks = nextBlocks + block.GetNextSteps()
 

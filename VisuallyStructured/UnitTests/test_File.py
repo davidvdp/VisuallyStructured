@@ -12,14 +12,14 @@ class TestFileGrabber(unittest.TestCase):
     def test_imageload(self):
         filegrabber = FileGrabber()
         filegrabber.DirOrFile = "..\TestImages\Image3.jpg"
-        filegrabber.Execute()
+        filegrabber.execute(None)
         self.assertEqual(filegrabber.OutputVars["Image"].value.shape[0],200,"Images size does not match")
         self.assertEqual(filegrabber.OutputVars["Image"].value.shape[1],400,"Images size does not match")
 
         filegrabber.DirOrFile = "..\TestImages"
         previoussize = -1
         for i in range(4):
-            filegrabber.Execute()
+            filegrabber.execute(None)
             self.assertGreater(filegrabber.OutputVars["Image"].value.shape[0], 0)
             self.assertGreater(filegrabber.OutputVars["Image"].value.shape[1], 0)
             self.assertNotEqual(previoussize,filegrabber.OutputVars["Image"].value.shape[1])

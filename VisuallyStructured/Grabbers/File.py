@@ -55,7 +55,7 @@ class FileGrabber(FlowBlockGrabber):
         else:
             logging.warning("Could not grab image; no (valid) files are specified.")
 
-    def Execute(self):
+    def execute(self, results_controller):
         logging.info("Executing File Grabber")
         path = self.SubVariables["Dir_or_File"].value
         if path is None:
