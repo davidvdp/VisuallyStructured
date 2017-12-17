@@ -9,8 +9,11 @@ from Filters import Blur
 from Grabbers import File
 
 #TODO: Execute Filters
-#TODO: Add option to change block names
+#TODO: When creating a new block or changing it's name; check if a block with the same name already exists.
 #TODO: Make sure block name can only exist once
+#TODO: When settings in properties are changes but not saved; add warning.
+#TODO: properties of a block should all be saved at once.
+#TODO: Add Continuous flow execution.
 
 #TODO: Show save state.
 #TODO: Add conditions / multiple columns
