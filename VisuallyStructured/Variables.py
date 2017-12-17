@@ -134,6 +134,7 @@ class StubVar(Var):
     def __init__(self, type, name):
         super().__init__(name=name)
         self.__type = type
+        self.SubVariables = dict()
 
     def Print(self, level = 0):
         tabs = ""
@@ -179,10 +180,32 @@ class ImageVar(StubVar):
     def value(self, value):
         self.__value = value
 
+class BoolVar(StubVar):
+    def __init__(self, boolvalue=False, name="Bool"):
+        super().__init__(name, name=name)
+        self.value = boolvalue
+
+    @property
+    def value(self):
+        if self.flowidreference:
+            return self.__value.__value
+        return bool(self.__value)
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value, bool):
+            if value == "True" or value == "true" or value == "1":
+                value = True
+            elif value == "False" or value == "false" or value == "0":
+                value = False
+            else:
+                return # not parsable, do not change a thing
+        self.__value = value
+
 class IntVar(StubVar):
     def __init__(self, intvalue=0, name="Int",min=None,max=None):
         super().__init__("Int",name=name)
-        self.SubVariables = dict()
+        #self.SubVariables = dict()
         if min is not None and max is not None and max < min:
             temp = min
             min = max
@@ -210,7 +233,7 @@ class IntVar(StubVar):
 class FloatVar(StubVar):
     def __init__(self, floatvalue=0.0, name="Float",min=None,max=None):
         super().__init__("Float",name=name)
-        self.SubVariables = dict()
+        #self.SubVariables = dict()
         if min is not None and max is not None and max < min:
             temp = min
             min = max

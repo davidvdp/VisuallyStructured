@@ -50,7 +50,7 @@ class FileGrabber(FlowBlockGrabber):
             if self.__listCnt >= len(self.__fileNameList):
                 self.__listCnt = 0
 
-            logging.info("Grabbed image %d of %d; %s" %(self.__listCnt, len(self.__fileNameList), self.__fileNameList[self.__listCnt]))
+            logging.info("Ready to grab image %d of %d; %s" %(self.__listCnt+1, len(self.__fileNameList), self.__fileNameList[self.__listCnt]))
             return self.__fileNameList[self.__listCnt]
         else:
             logging.warning("Could not grab image; no (valid) files are specified.")
@@ -67,12 +67,14 @@ class FileGrabber(FlowBlockGrabber):
 
         filename = self.__getNextFileName()
         if os.path.isfile(filename):
-            if self.__previousFileName is not filename:
-                self.__previousFileName = filename
-                image  = cv2.imread(filename)
-                if image.shape[0] > 0 and image.shape[1] > 0:
-                    self.OutputVars["Image"].value = image
-                else:
-                    logging.warning("The image your are trying to load has a size of 0.")
+            image  = cv2.imread(filename)
+            if image.shape[0] > 0 and image.shape[1] > 0:
+                self.OutputVars["Image"].value = image
+                logging.info("Grabbed image %s" %filename)
+            else:
+                logging.warning("The image your are trying to load has a size of 0.")
+        else:
+            logging.warning("Could not grab image %s; image does not appear to exist." %filename)
+
 
 FlowBlockFactory.AddBlockType(FileGrabber)

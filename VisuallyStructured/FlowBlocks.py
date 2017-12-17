@@ -104,6 +104,10 @@ class FlowBlock(Var):
         :return: The value requested.
         """
         subvar = self.SubVariables.get(name)
+        if subvar is None:
+            logging.warning("Subvariable %s does not exist in %s." % (name, self.name))
+            return None
+
         try:
             is_reference = subvar.is_reference
         except:  # TODO: Somehow the is_reference property is not inherited.
