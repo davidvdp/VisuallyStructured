@@ -5,6 +5,9 @@ from FlowBlocks import FlowBlockFactory, FlowBlock
 from ModelFlow import Flow
 from copy import deepcopy
 from ThreadPool import ThreadPool
+from threading import Lock
+
+step_execution_lock = Lock()
 
 class ControllerFlow(object):
     """
@@ -74,9 +77,17 @@ class ControllerFlow(object):
                 super().__init__(name)
                 self.__function_handle_execute = function_handle_execute
                 self.__results = results
+
             def execute(self):
-                blocks_executed = self.__function_handle_execute(self.__results)
-                self.__results.add_blocks_to_result(blocks_executed)
+                #TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
+                #TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
+                global step_execution_lock
+                step_execution_lock.acquire()
+                try:
+                    blocks_executed = self.__function_handle_execute(self.__results)
+                    self.__results.add_blocks_to_result(blocks_executed)
+                finally:
+                    step_execution_lock.release()
 
         task_step = task("ExecuteNextStepLevel", self.__flowmodel.ExecuteStepByStep, self.__controller.results)
 

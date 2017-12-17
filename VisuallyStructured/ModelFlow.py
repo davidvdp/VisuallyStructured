@@ -4,6 +4,9 @@ import os
 import pickle
 import ControllerResults
 import copy
+from threading import Lock
+import sys,traceback
+
 
 class ModelFlow(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""
@@ -38,7 +41,7 @@ class ModelFlow(Subject):
         self._flow.save_to(file_name)
 
 
-
+step_execution_lock = Lock()
 
 class Flow(object):
     def __init__(self):
@@ -175,16 +178,8 @@ class Flow(object):
             #use recursive function to find step to remove
             return self.__removeBlock(blockToRemove, self.__startBlock)
 
-    # def __executeStepByStep(self, startblock):
-    #     if startblock is None:
-    #         return
-    #     startblock.Execute()
-    #     nextSteps = startblock.GetNextSteps()
-    #     if len(nextSteps):
-    #         for step in nextSteps:
-    #             self.__executeStepByStep(step)
-
     def ExecuteStepByStep(self, controller_results: ControllerResults):
+        blocksExecuted = []
         if self.__nextBlocksToBeExecuted is None:
             return None
 
@@ -200,5 +195,6 @@ class Flow(object):
             nextBlocks = nextBlocks + block.GetNextSteps()
 
         self.__nextBlocksToBeExecuted = nextBlocks
+
         return blocksExecuted
 
