@@ -95,28 +95,7 @@ class FlowBlock(Var):
             return self.__class__.type_name
         return self.__class__.__bases__[0].type_name + "." + self.__class__.type_name
 
-    def get_subvariable_value(self, name: str, results_controller):
-        """
-        Gets the value of a subvariable. It might also get the value from the results model if the value is a reference
-        to an output of a different block.
-        :param name: name of the viable
-        :param results_controller:  results controller. Needs this to retrieve the value in case of a output reference.
-        :return: The value requested.
-        """
-        subvar = self.SubVariables.get(name)
-        if subvar is None:
-            logging.warning("Subvariable %s does not exist in %s." % (name, self.name))
-            return None
 
-        try:
-            is_reference = subvar.is_reference
-        except:  # TODO: Somehow the is_reference property is not inherited.
-            is_reference = False
-            logging.warning("%s.is_reference property does not exist." %name)
-        if is_reference:
-            subvar = results_controller.getvalue(subvar.value)
-
-        return subvar.value
 
     def GetNextSteps(self):
         return self._nextSteps
@@ -144,7 +123,10 @@ class FlowBlockFilter(FlowBlock):
     type_name = "Filter"
     def __init__(self, name="Filter"):
         super().__init__(name)
-        self.OutputVars = {"Image": ImageVar()}
+        self.SubVariables.update({
+            "Image": ImageVar()
+        }) # a filter always has an input
+        self.OutputVars = {"Image": ImageVar()} # and an output
 
     def execute(self, results_controller):
         raise NotImplementedError()

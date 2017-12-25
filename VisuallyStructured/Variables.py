@@ -87,11 +87,13 @@ class Var(object):
         obj.value = value
         return obj.value
 
-    def get_variable_by_id(self, id):
+    def get_variable_by_id(self, id: str):
         splitted_id = id.split(self.__delimiter)[1:]
         obj = self
         for subid in splitted_id:
             if obj.Stub():
+                break
+            if obj.is_reference:
                 break
             nextObj = obj.SubVariables.get(subid)
             if nextObj is None:
@@ -99,6 +101,29 @@ class Var(object):
             else:
                 obj = nextObj
         return obj
+
+    def get_subvariable_or_referencedvariable(self, id: str, results_controller):
+        """
+        Gets the value of a subvariable. It might also get the value from the results model if the value is a reference
+        to an output of a different block.
+        :param id: id of the viable
+        :param results_controller:  results controller. Needs this to retrieve the value in case of a output reference.
+        :return: The value requested.
+        """
+        subvar = self.get_variable_by_id(self.name+self.__delimiter+id)
+        if subvar is None:
+            logging.warning("Subvariable %s does not exist in %s." % (id, self.name))
+            return None
+
+        try:
+            is_reference = subvar.is_reference
+        except:  # TODO: Somehow the is_reference property is not inherited.
+            is_reference = False
+            logging.warning("%s.is_reference property does not exist." % id)
+        if is_reference:
+            subvar = results_controller.getvalue(subvar.value)
+
+        return subvar
 
     def get_variables_by_type(self, type: str):
         """
@@ -313,6 +338,7 @@ class IntPointVar(Var):
         if not isinstance(y,IntVar):
             raise ValueError
         self.SubVariables["y"] = y
+
 
 class PointVar(Var):
     def __init__(self, x=FloatVar(), y=FloatVar(), name="Point"):

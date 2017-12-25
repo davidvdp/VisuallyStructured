@@ -10,23 +10,22 @@ class Sobel(FlowBlockFilter):
     type_name = "Sobel"
     def __init__(self, name="Sobel"):
         super().__init__(name=name)
-        self.SubVariables = {
-            "Image": ImageVar(),
+        self.SubVariables.update( {
             "Kernel_Size": IntVar(5,min=1),
             "dx": BoolVar(True),
             "dy": BoolVar(False),
             "abs": BoolVar(False)
-        }
+        } )
 
     def execute(self, results_controller: ControllerResults):
         logging.info("Executing %s" % self.name)
 
-        ker_size = self.get_subvariable_value("Kernel_Size", results_controller)
-        dx = self.get_subvariable_value("dx", results_controller)
-        dy = self.get_subvariable_value("dy", results_controller)
-        abs = self.get_subvariable_value("abs",results_controller)
+        ker_size = self.get_subvariable_or_referencedvariable("Kernel_Size", results_controller).value
+        dx = self.get_subvariable_or_referencedvariable("dx", results_controller).value
+        dy = self.get_subvariable_or_referencedvariable("dy", results_controller).value
+        abs = self.get_subvariable_or_referencedvariable("abs", results_controller).value
 
-        image = self.get_subvariable_value("Image", results_controller)
+        image = self.get_subvariable_or_referencedvariable("Image", results_controller).value
         if image is None:
             logging.warning("input image of %s is empty." %self.name)
             return

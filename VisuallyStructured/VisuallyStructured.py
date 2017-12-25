@@ -14,6 +14,8 @@ from Grabbers import File
 #TODO: When settings in properties are changes but not saved; add warning.
 #TODO: properties of a block should all be saved at once.
 #TODO: Add Continuous flow execution.
+#TODO: Create tree like structure for properties within a block
+#TODO: Use icon to distinguish block types from one another
 
 #TODO: Show save state.
 #TODO: Add conditions / multiple columns
