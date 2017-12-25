@@ -56,9 +56,30 @@ class ControllerFlow(object):
             flow.RemoveBlock(block_to_remove)
             self.__flowmodel.SetFlow(flow)
 
+    def _get_name_and_index(self, name):
+        '''
+        Helper function to parse name and index from pattern name_index
+        :param name: block name
+        :return: name, index
+        '''
+        name = name
+        index = 0
+        splitted_name = name.split("_")
+        if len(splitted_name) > 1:
+            if splitted_name[-1].isdigit():
+                name = "_".join(splitted_name[0:len(splitted_name)-1])
+                index = int(splitted_name[-1])
+        return name, index
+
+
     def change_name_of_block(self, block: FlowBlock, new_name: str):
         if block:
             flow = self.__flowmodel.GetFlow()
+
+            while flow.GetBlockByName(new_name) is not None:
+                name, index = self._get_name_and_index(new_name)
+                new_name = name + "_" + str(index+1)
+
             block_in_flow = flow.GetBlockByName(block.name)
             block_in_flow.name = new_name
             self.__flowmodel.SetFlow(flow)

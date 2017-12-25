@@ -156,6 +156,10 @@ class FlowBlockGUI(object):
 
         dialog = RenameDialog(self._parent)
         self._parent._frame.wait_window(dialog.top)
+        if dialog.new_name is None or dialog.new_name == "":
+            return # invalid name specified
+        if self._flowBlockObject.name == dialog.new_name:
+            return #did not change
         self._parent.get_controller().flow.change_name_of_block(self._flowBlockObject, dialog.new_name)
 
         #self.parent.parent.controller.SetVariableValueByID(self.id, value=newvalue)
