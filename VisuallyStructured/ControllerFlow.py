@@ -7,7 +7,7 @@ from copy import deepcopy
 from ThreadPool import ThreadPool
 from threading import Lock
 
-step_execution_lock = Lock()
+level_execution_lock = Lock()
 
 class ControllerFlow(object):
     """
@@ -92,7 +92,7 @@ class ControllerFlow(object):
         self.__flowmodel.SetFlow(flow)
         return new_value
 
-    def ExecuteNextStepLevel(self):
+    def run_flow_once(self):
         class task(ThreadPool.Task):
             def __init__(self, name, function_handle_execute, results):
                 super().__init__(name)
@@ -102,15 +102,38 @@ class ControllerFlow(object):
             def execute(self):
                 #TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
                 #TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
-                global step_execution_lock
-                step_execution_lock.acquire()
+                global level_execution_lock
+                level_execution_lock.acquire()
                 try:
+                    blocks_executed = []
                     blocks_executed = self.__function_handle_execute(self.__results)
                     self.__results.add_blocks_to_result(blocks_executed)
                 finally:
-                    step_execution_lock.release()
+                    level_execution_lock.release()
 
-        task_step = task("ExecuteNextStepLevel", self.__flowmodel.ExecuteStepByStep, self.__controller.results)
+        task_step = task("ExecuteFlowOnce", self.__flowmodel.execute_flow_once, self.__controller.results)
+
+        self.__controller.threadpool.add_task(task_step)
+
+
+    def execute_next_step_level(self):
+        class task(ThreadPool.Task):
+            def __init__(self, name, function_handle_execute, results):
+                super().__init__(name)
+                self.__function_handle_execute = function_handle_execute
+                self.__results = results
+
+            def execute(self):
+                #TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
+                #TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
+                global level_execution_lock
+                level_execution_lock.acquire()
+                try:
+                    blocks_executed = self.__function_handle_execute(self.__results)
+                finally:
+                    level_execution_lock.release()
+
+        task_step = task("ExecuteNextStepLevel", self.__flowmodel.execute_step_by_step, self.__controller.results)
 
         self.__controller.threadpool.add_task(task_step)
 

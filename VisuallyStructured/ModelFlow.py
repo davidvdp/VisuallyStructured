@@ -8,45 +8,23 @@ from threading import Lock
 import sys,traceback
 
 
-class ModelFlow(Subject):
-    """This holds the actual flow and is able to pass it to a subscriber when needed."""
-    def __init__(self, settings, modelresult = None):
-        super().__init__()
-        self._flow = Flow()
-
-        flow_file = settings.last_flow
-        if os.path.isfile(flow_file):
-            self._flow.load()
-
-        self.__modelresult = modelresult
-
-    def GetFlow(self):
-        return self._flow
-
-    def SetFlow(self, flow):
-        self._flow = flow
-        self._flow.save()
-        self.__modelresult.OnFlowModelChange(flow)
-        self._notify()
-
-    def ExecuteStepByStep(self, controller_results: ControllerResults):
-        blocksExecuted = self._flow.ExecuteStepByStep(controller_results)
-        return blocksExecuted
-
-    def load_flow_from_file(self, file_name: str):
-        self._flow.load_from(file_name)
-        self._notify()
-
-    def save_flow_to_file(self, file_name: str):
-        self._flow.save_to(file_name)
 
 
-step_execution_lock = Lock()
+
+level_execution_lock = Lock()
 
 class Flow(object):
     def __init__(self):
         self._jSONFileLocation = ""
         self.__startBlock = None
+        self.__nextBlocksToBeExecuted = [self.__startBlock]
+
+    @property
+    def next_blocks_to_execute(self):
+        return self.__nextBlocksToBeExecuted
+
+
+    def reset_next_block_to_be_executed(self):
         self.__nextBlocksToBeExecuted = [self.__startBlock]
 
     def save(self):
@@ -76,6 +54,8 @@ class Flow(object):
             with open(source_file, 'rb') as f:
                 tmp_dict = pickle.load(f)
             self.__dict__.update(tmp_dict)
+            # make sure it starts executing from the first step
+            self.reset_next_block_to_be_executed()
             logging.info("Loaded flow from file: %s." %source_file)
 
     def GetStartBlock(self):
@@ -178,7 +158,18 @@ class Flow(object):
             #use recursive function to find step to remove
             return self.__removeBlock(blockToRemove, self.__startBlock)
 
-    def ExecuteStepByStep(self, controller_results: ControllerResults):
+    def execute_flow_once(self, controller_results: ControllerResults ):
+        not_started_yet = True
+
+        blocks_executed = []
+
+        while not self.__startBlock in self.next_blocks_to_execute or not_started_yet:
+            not_started_yet = False
+            blocks_executed.extend( self.execute_step_by_step(controller_results=controller_results))
+
+        return blocks_executed
+
+    def execute_step_by_step(self, controller_results: ControllerResults):
         blocksExecuted = []
         if self.__nextBlocksToBeExecuted is None:
             return None
@@ -196,5 +187,48 @@ class Flow(object):
 
         self.__nextBlocksToBeExecuted = nextBlocks
 
+        if len(self.__nextBlocksToBeExecuted ) is 0:
+            self.__nextBlocksToBeExecuted = [self.GetStartBlock()]
+
+        controller_results.add_blocks_to_result(blocksExecuted)
+
         return blocksExecuted
 
+class ModelFlow(Subject):
+    """This holds the actual flow and is able to pass it to a subscriber when needed."""
+    def __init__(self, settings, modelresult = None):
+        super().__init__()
+        self._flow = Flow()
+
+        flow_file = settings.last_flow
+        if os.path.isfile(flow_file):
+            self._flow.load()
+
+        self.__modelresult = modelresult
+
+    def GetFlow(self) -> Flow:
+        return self._flow
+
+    def SetFlow(self, flow: Flow):
+        self._flow = flow
+        self._flow.save()
+        self.__modelresult.OnFlowModelChange(flow)
+        self._notify()
+
+    def execute_step_by_step(self, controller_results: ControllerResults):
+        blocksExecuted = self._flow.execute_step_by_step(controller_results)
+        return blocksExecuted
+
+    def execute_flow_once(self, controller_results: ControllerResults):
+        blocksExecuted = self._flow.execute_flow_once(controller_results)
+        return blocksExecuted
+
+    def load_flow_from_file(self, file_name: str):
+        self._flow.load_from(file_name)
+        self._notify()
+
+    def save_flow_to_file(self, file_name: str):
+        self._flow.save_to(file_name)
+
+    def get_next_block_to_execute(self):
+        return self._flow.next_blocks_to_execute
