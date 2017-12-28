@@ -21,9 +21,9 @@ class ViewControl(Observer,View):
         self._buttonNextStep.pack(side=LEFT)
 
     def FlowStart(self):
-
-        logging.warning("Starting flow has not been implemented yet.")
-        raise NotImplementedError("Starting flow has not been implemented yet.")
+        self._parent.controller.flow.run_flow_once()
+        #logging.warning("Starting flow has not been implemented yet.")
+        #raise NotImplementedError("Starting flow has not been implemented yet.")
 
     def FlowPause(self):
         logging.warning("Pausing flow has not been implemented yet.")
@@ -31,6 +31,6 @@ class ViewControl(Observer,View):
 
 
     def FlowNextStep(self):
-        self._parent.controller.flow.ExecuteNextStepLevel()
+        self._parent.controller.flow.execute_next_step_level()
         #logging.warning("Steppingg though flow has not been implemented yet.")
         #raise NotImplementedError("Steppingg though flow has not been implemented yet.")
