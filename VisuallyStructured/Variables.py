@@ -77,7 +77,14 @@ class Var(object):
                 varids[name + self.__delimiter + keysub] = valsub
         return varids
 
-    def set_variable_value_by_id(self, id, value, is_reference=False):
+    def set_variable_value_by_id(self, id: str, value, is_reference=False):
+        """
+        Sets a specific subvariable of this Var object
+        :param id: variable id to set
+        :param value: value to set it to
+        :param is_reference: is the value a reference to a result?
+        :return: value it has been set to. It might change if the value does not adhere to the rules of that variable.
+        """
         if self.Stub():
             obj = self
         else:
@@ -89,6 +96,8 @@ class Var(object):
 
     def get_variable_by_id(self, id: str):
         splitted_id = id.split(self.__delimiter)[1:]
+        if len(splitted_id) is 0:
+            splitted_id = [id]
         obj = self
         for subid in splitted_id:
             if obj.Stub():
@@ -121,7 +130,8 @@ class Var(object):
             is_reference = False
             logging.warning("%s.is_reference property does not exist." % id)
         if is_reference:
-            subvar = results_controller.getvalue(subvar.value)
+            if results_controller is not None:
+                subvar = results_controller.getvalue(subvar.value)
 
         return subvar
 
