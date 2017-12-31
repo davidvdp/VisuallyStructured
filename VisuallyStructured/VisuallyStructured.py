@@ -8,11 +8,9 @@ from Filters import Sobel
 from Filters import Blur
 from Grabbers import File
 
-#TODO: Execute Filters
-#TODO: When creating a new block or changing it's name; check if a block with the same name already exists.
-#TODO: Make sure block name can only exist once
-#TODO: When settings in properties are changes but not saved; add warning.
+#TODO: autosave for properties
 #TODO: properties of a block should all be saved at once.
+
 #TODO: Add Continuous flow execution.
 #TODO: Create tree like structure for properties within a block
 #TODO: Use icon to distinguish block types from one another

@@ -1,7 +1,7 @@
 import logging
 from GUI.GUIInterface import *
 from FlowBlocks import FlowBlock
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from SubjectObserver import Observer
 import GUI.tkinterGUI
 
@@ -77,13 +77,26 @@ class ViewProperties(Observer,View):
         super().__init__(parent, col=col, row=row, scrollbars=True, columnspan=columnspan,sticky=NSEW)
         self.parent = parent
         self.SetHeight(300)
-        self._frame
+        #self._frame
         self.block = None
         self.labelFrameInput = None
         self.labelFrameOutput = None
 
         self.variable_fields_in = []
         self.variable_fields_out = []
+        self.__var_changed = False
+
+    def on_value_change(self, *args):
+        self.__buttonSave.config(state=NORMAL)
+        self.__var_changed = True
+
+    def __on_save(self):
+        if self.__var_changed:
+            for i, field in enumerate(self.variable_fields_in):
+                field.OnValueSave()
+
+            self.__buttonSave.config(state=DISABLED)
+            self.__var_changed = False
 
     def load_properties(self, block: FlowBlock):
         """
@@ -92,6 +105,15 @@ class ViewProperties(Observer,View):
         :return:
         """
         logging.info("Loading properties for %s" %block.name)
+
+        #first check if something changed, for previous properties
+        if self.__var_changed:
+            if not messagebox.askyesno("Not Saved Changes",
+                                   "Block variable changes are not saved. Are you sure you want to proceed?"):
+                return
+
+        self.__var_changed = False
+
         self.block = block
 
         #destroy old stuff
@@ -119,8 +141,9 @@ class ViewProperties(Observer,View):
                 #self.entryvalues.append(Entry(self.labelFrameInput, textvalue=str(val), command=self.__onValueChange))
                 varField.entryValueStringVar = StringVar(self.labelFrameInput)
                 varField.entryValueStringVar.set(str(val))
+                varField.entryValueStringVar.trace("w", callback=self.on_value_change)
                 varField.entryValue = Entry(self.labelFrameInput, textvariable=varField.entryValueStringVar)
-                varField.buttonSave = Button(self.labelFrameInput, text="Save", command=varField.OnValueSave)
+                #varField.buttonSave = Button(self.labelFrameInput, text="Save", command=varField.OnValueSave)
 
                 #self.parent.controller.set_variable_value_by_id()
                 all_results = self.parent.controller.results.get_results_of_type(key.split(".")[-1])
@@ -132,6 +155,7 @@ class ViewProperties(Observer,View):
                     varField.optionMenuOptions = drop_down
                     #self.externalvalues.append(OptionMenu(self.labelFrameInput, "", *options, command=lambda index=index: self.__onExternalValueChange))
                     varField.optionMenuStringVar = StringVar(self.labelFrameInput)
+
                     varField.optionMenuStringVar.set("")
                     varField.optionMenuValue = OptionMenu(self.labelFrameInput, varField.optionMenuStringVar, *varField.optionMenuOptions, command=varField.OnExternalValueChange)
 
@@ -165,6 +189,10 @@ class ViewProperties(Observer,View):
 
             for i,field in enumerate(self.variable_fields_in):
                 field.add_all_to_grid(i)
+
+            self.__buttonSave = Button(self.labelFrameInput, text="Save", command=self.__on_save)
+            self.__buttonSave.config(state=DISABLED)
+            self.__buttonSave.grid(column=0, row=len(self.variable_fields_in)+1)
 
         #destroy old stuff
         for variableField in self.variable_fields_out:
