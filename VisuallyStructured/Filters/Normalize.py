@@ -3,28 +3,31 @@ from FlowBlocks import FlowBlockFactory
 from Variables import *
 import ControllerResults
 import cv2
+import numpy as np
 
-class Blur(FlowBlockFilter):
-    """Class that implements a sobel kernel filter"""
-    type_name = "Blur"
+class Normalize(FlowBlockFilter):
+    """Class that implements image normalization"""
+    type_name = "Normalize"
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {
             "Image": ImageVar(),
-            "Kernel_Size": IntPointVar(x=IntVar(min=3),y=IntVar(min=3))
+            "alpha": IntVar(0, min=0, max=255),
+            "beta": IntVar(255, min=0, max=255)
         }
 
     def execute(self, results_controller: ControllerResults):
         logging.info("Executing %s" % self.name)
-        ker_size_x = self.get_subvariable_or_referencedvariable("Kernel_Size.x", results_controller).value
-        ker_size_y = self.get_subvariable_or_referencedvariable("Kernel_Size.y", results_controller).value
+        alpha = self.get_subvariable_or_referencedvariable("alpha", results_controller).value
+        beta = self.get_subvariable_or_referencedvariable("beta", results_controller).value
 
         image = self.get_subvariable_or_referencedvariable("Image", results_controller).value
         if image is None:
             logging.warning("input image of %s is empty." % self.name)
             return
 
-        res = cv2.blur(image, (ker_size_x,ker_size_y))
+        res = image.copy()
+        cv2.normalize(image, res, alpha=alpha, beta=beta, norm_type=cv2.NORM_MINMAX)
 
         if res.shape[0] > 0 and res.shape[1] > 0:
             self.OutputVars["Image"].value = res
@@ -32,4 +35,4 @@ class Blur(FlowBlockFilter):
             logging.warning("The image your are trying to load has a size of 0.")
 
 
-FlowBlockFactory.AddBlockType(Blur)
+FlowBlockFactory.AddBlockType(Normalize)

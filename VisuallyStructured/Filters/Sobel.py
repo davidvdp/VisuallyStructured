@@ -8,7 +8,7 @@ import numpy as np
 class Sobel(FlowBlockFilter):
     """Class that implements a sobel kernel filter"""
     type_name = "Sobel"
-    def __init__(self, name="Sobel"):
+    def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables.update( {
             "Kernel_Size": IntVar(5,min=1),
