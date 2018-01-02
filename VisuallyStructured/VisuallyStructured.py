@@ -23,6 +23,7 @@ from Grabbers import File
 #TODO: Add ruler profile and histogram options for image analysis
 #TODO: Add Icons for grabber, filter, meas and condition
 #TODO: When adding blocks to a already saved and loaded flw name is not automatically indexed like Sobel_1 Sobel_2 etc
+#TODO: When setting up grabber extension filter is not OK
 
 
 def setLogging(settings):
