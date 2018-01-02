@@ -4,8 +4,7 @@ from time import localtime, strftime
 import os
 from StandardSettings import Settings
 
-from Filters import Sobel
-from Filters import Blur
+from Filters import Blur, Sobel, Normalize, HeatMap
 from Grabbers import File
 
 #TODO: autosave for properties
