@@ -88,6 +88,8 @@ class ControllerFlow(object):
         blockname = id.split(".")[0]
         flow = self.__flowmodel.GetFlow()
         block = flow.GetBlockByName(blockname)
+        if block is None:
+            return None
         new_value = block.set_variable_value_by_id(id, value=value, is_reference=is_reference) #if outside of min max value might change
         self.__flowmodel.SetFlow(flow)
         return new_value
