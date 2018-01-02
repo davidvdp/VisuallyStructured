@@ -4,7 +4,7 @@ from time import localtime, strftime
 import os
 from StandardSettings import Settings
 
-from Filters import Blur, Sobel, Normalize, HeatMap
+from Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCorrection, AddValue, MultiplyValue, SelectChannel
 from Grabbers import File
 
 #TODO: autosave for properties
@@ -20,9 +20,13 @@ from Grabbers import File
 #TODO: Make sure that all user events have a try catch
 #TODO: Think of a name. Visico, VisuallyScructured
 #TODO: Add ruler profile and histogram options for image analysis
+#TODO: value tool on mouse over
 #TODO: Add Icons for grabber, filter, meas and condition
 #TODO: When adding blocks to a already saved and loaded flw name is not automatically indexed like Sobel_1 Sobel_2 etc
 #TODO: When setting up grabber extension filter is not OK
+#TODO: Cannot insert new block in between two other blocks
+#TODO: Automatic new line for text in block
+#TODO: Feedback for saving changes for property does also popup when current block is selected again.
 
 
 def setLogging(settings):

@@ -1,5 +1,5 @@
 from Variables import Var
-from Variables import PathVar
+from Variables import PathVar, BoolVar
 from Variables import ImageVar
 from FlowBlocks import FlowBlockGrabber
 from FlowBlocks import FlowBlockFactory
@@ -11,12 +11,15 @@ class FileGrabber(FlowBlockGrabber):
     type_name = "File"
     def __init__(self,name="File"):
         super().__init__(name=name)
-        self.SubVariables = {"Dir_or_File": PathVar()}
+        self.SubVariables = {
+            "Dir_or_File": PathVar(),
+            "Gray": BoolVar(False)
+        }
 
         self.__previousPath = None
         self.__previousFileName = None
         self.__fileNameList = []
-        self.__validExtensions = (".jpg",".bmp",".png")
+        self.__validExtensions = (".jpg", ".bmp", ".png")
         self.__listCnt = -1
 
     @property
@@ -58,6 +61,9 @@ class FileGrabber(FlowBlockGrabber):
     def execute(self, results_controller):
         logging.info("Executing File Grabber")
         path = self.SubVariables["Dir_or_File"].value
+        gray = self.SubVariables["Gray"].value
+
+
         if path is None:
             return
         if self.__previousPath is not path:
@@ -67,7 +73,10 @@ class FileGrabber(FlowBlockGrabber):
 
         filename = self.__getNextFileName()
         if os.path.isfile(filename):
-            image  = cv2.imread(filename)
+            if gray:
+                image = cv2.imread(filename, 0)
+            else:
+                image = cv2.imread(filename)
             if image.shape[0] > 0 and image.shape[1] > 0:
                 self.OutputVars["Image"].value = image
                 logging.info("Grabbed image %s" %filename)
