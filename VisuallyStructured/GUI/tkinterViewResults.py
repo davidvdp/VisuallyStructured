@@ -181,16 +181,19 @@ class ViewResults(Observer, View):
         tab.SetImage(npimage=npimage)
         self._tabs.append(tab)
 
-    def __findAllImagesAndShow(self):
+    def __findAllImagesAndShow(self, flowblock_name):
         if self._results is None:
             return
         imageVars = self._results.FindAllOfType(ImageVar().name)
         for key, var in imageVars.items():
             name = key.split(".")[0]
-            self.AddTab(var.value,name)
+            if name == flowblock_name:
+                self.AddTab(var.value,name)
 
-    def Update(self):
+    def Update(self, *args, **kwargs):
         self._results = self.get_controller().results.get_results_for_block()
-        self.__findAllImagesAndShow()
+        flowblock_name = kwargs.get("flowblock_name", None)
+        if not flowblock_name is None:
+            self.__findAllImagesAndShow(flowblock_name)
 
 

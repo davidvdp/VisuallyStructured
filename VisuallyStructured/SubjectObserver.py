@@ -15,9 +15,9 @@ class Subject(object):
     def Detach(self, observer):
         self._observers.remove(observer)
 
-    def _notify(self):
+    def _notify(self, *args, **kwargs):
         for observer in self._observers:
-            observer.Update()
+            observer.Update(*args, **kwargs)
 
 class Observer(object):
     def Update(self):

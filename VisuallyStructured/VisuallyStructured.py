@@ -9,7 +9,6 @@ from Grabbers import File
 #TODO: Create tree like structure for properties within a block
 #TODO: Use icon to distinguish block types from one another
 
-#TODO: Show save state.
 #TODO: Add conditions / multiple columns / for x in bla
 #TODO: Allow for the use of del ctrl-c, ctrl-v etc.
 #TODO: Make sure that all user events have a try catch

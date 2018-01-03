@@ -21,6 +21,10 @@ class Debayer(FlowBlockFilter):
         if image is None:
             logging.warning("input image of %s is empty." % self.name)
             return
+
+        if len(image.shape) > 2:
+            logging.error("Could not convert image from bayered to RGB; image is not gray scaled.")
+            return
         res = cv2.cvtColor(image, cv2.COLOR_BAYER_RG2BGR)
 
         if res.shape[0] > 0 and res.shape[1] > 0:

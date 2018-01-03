@@ -6,6 +6,7 @@ from ModelFlow import Flow
 from copy import deepcopy
 from ThreadPool import ThreadPool
 from threading import Lock
+from datetime import datetime
 
 level_execution_lock = Lock()
 
@@ -107,11 +108,15 @@ class ControllerFlow(object):
                 global level_execution_lock
                 level_execution_lock.acquire()
                 try:
+                    start_time = datetime.now()
                     blocks_executed = []
                     blocks_executed = self.__function_handle_execute(self.__results)
                     self.__results.add_blocks_to_result(blocks_executed)
                 finally:
                     level_execution_lock.release()
+                    total_time = datetime.now() - start_time
+                    logging.info("Single flow run took %2.f ms" % (total_time.total_seconds()*1000.0))
+
 
         task_step = task("ExecuteFlowOnce", self.__flowmodel.execute_flow_once, self.__controller.results)
 

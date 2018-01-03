@@ -95,7 +95,7 @@ class ModelResults(Subject):
         if flowblock.OutputVars is None or len(flowblock.OutputVars) is 0:
             return
         self._results.AddToResult(flowblock.name, deepcopy(flowblock.OutputVars))
-        self._notify()
+        self._notify(flowblock_name=flowblock.name)
 
     def exists(self, id: str) -> bool:
         return self._results.exists(id)
