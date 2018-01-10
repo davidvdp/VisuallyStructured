@@ -89,10 +89,10 @@ class FlowBlockGUI(object):
         self._w.create_polygon(pointsPolygon)
 
     def _onClickColoring(self,event):
-        if (event.type is EventType.ButtonPress):
+        if event.type.name == "ButtonPress":
                 self._w.itemconfig(self._block, fill=self._colorClick)
                 self._w.update_idletasks()
-        elif (event.type is EventType.ButtonRelease):
+        elif event.type.name == "ButtonRelease":
             if self._entered:
                 self._w.itemconfig(self._block, fill=self._colorHover)
             else:
@@ -101,15 +101,15 @@ class FlowBlockGUI(object):
             self.OnLeftClick(event)
 
     def __onRightClickColoring(self, event):
-        if (event.type is EventType.ButtonRelease):
+        if event.type.name == "ButtonRelease":
             self.OnRightClick(event)
 
     def __onHover(self, event):
-        if (event.type is EventType.Enter):
+        if event.type.name == "Enter":
                 self._w.itemconfig(self._block, fill=self._colorHover)
                 self._w.update_idletasks()
                 self._entered = True
-        elif (event.type is EventType.Leave):
+        elif event.type.name == "Leave":
                 self._w.itemconfig(self._block, fill=self._color)
                 self._w.update_idletasks()
                 self._entered = False
