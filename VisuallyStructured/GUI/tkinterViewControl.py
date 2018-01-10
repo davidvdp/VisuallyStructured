@@ -7,9 +7,9 @@ class ViewControl(Observer,View):
     """Takes care of the presentation of the Flow diagram."""
     def __init__(self, parent, col=0, row=0):
         super().__init__(parent, col=col, row=row)
-        self.control_image_pause = PhotoImage(file="GUI\\icons\\control_pause.png")
-        self.control_image_single_run = PhotoImage(file="GUI\\icons\\control_single_run.png")
-        self.control_image_single_step = PhotoImage(file="GUI\\icons\\control_single_step.png")
+        self.control_image_pause = PhotoImage(file="GUI/icons/control_pause.png")
+        self.control_image_single_run = PhotoImage(file="GUI/icons/control_single_run.png")
+        self.control_image_single_step = PhotoImage(file="GUI/icons/control_single_step.png")
 
         self._buttonPause = Button(self._frame,
                                    #text="Pause", fg="red",
