@@ -62,11 +62,11 @@ class FlowBlockGUI(object):
         self._color = "lightblue"
         self._w = Canvas(parent._frame, width=100, height=height)
         self._w.pack()
-        self._w.bind("<Button-1>", self._onClickColoring)
-        self._w.bind("<ButtonRelease-1>", self._onClickColoring)
-        self._w.bind("<ButtonRelease-3>", self.__onRightClickColoring)
-        self._w.bind("<Enter>", self.__onHover)
-        self._w.bind("<Leave>", self.__onHover)
+        self._w.bind("<Button-1>", self._on_click_coloring_button_press)
+        self._w.bind("<ButtonRelease-1>", self._on_click_coloring_button_release)
+        self._w.bind("<ButtonRelease-3>", self.__on_right_click_coloring)
+        self._w.bind("<Enter>", self.__on_hover_enter)
+        self._w.bind("<Leave>", self.__on_hover_leave)
         self._entered = False
         self._parent = parent
 
@@ -88,31 +88,30 @@ class FlowBlockGUI(object):
                          end[0] + sizeArrowPoint / 2, end[1] - sizeArrowPoint]
         self._w.create_polygon(pointsPolygon)
 
-    def _onClickColoring(self,event):
-        if event.type.name == "ButtonPress":
-                self._w.itemconfig(self._block, fill=self._colorClick)
-                self._w.update_idletasks()
-        elif event.type.name == "ButtonRelease":
-            if self._entered:
-                self._w.itemconfig(self._block, fill=self._colorHover)
-            else:
-                self._w.itemconfig(self._block, fill=self._color)
-            self._w.update_idletasks()
-            self.OnLeftClick(event)
+    def _on_click_coloring_button_press(self,event):
+        self._w.itemconfig(self._block, fill=self._colorClick)
+        self._w.update_idletasks()
 
-    def __onRightClickColoring(self, event):
-        if event.type.name == "ButtonRelease":
-            self.OnRightClick(event)
+    def _on_click_coloring_button_release(self, event):
+        if self._entered:
+            self._w.itemconfig(self._block, fill=self._colorHover)
+        else:
+            self._w.itemconfig(self._block, fill=self._color)
+        self._w.update_idletasks()
+        self.OnLeftClick(event)
 
-    def __onHover(self, event):
-        if event.type.name == "Enter":
-                self._w.itemconfig(self._block, fill=self._colorHover)
-                self._w.update_idletasks()
-                self._entered = True
-        elif event.type.name == "Leave":
-                self._w.itemconfig(self._block, fill=self._color)
-                self._w.update_idletasks()
-                self._entered = False
+    def __on_right_click_coloring(self, event):
+        self.OnRightClick(event)
+
+    def __on_hover_enter(self, event):
+        self._w.itemconfig(self._block, fill=self._colorHover)
+        self._w.update_idletasks()
+        self._entered = True
+
+    def __on_hover_leave(self, event):
+        self._w.itemconfig(self._block, fill=self._color)
+        self._w.update_idletasks()
+        self._entered = False
 
     def ContextMenu(self, x, y):
         factory = FlowBlockFactory()
