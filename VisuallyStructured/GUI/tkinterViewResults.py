@@ -5,7 +5,6 @@ from GUI.GUIInterface import *
 from PIL import Image, ImageTk
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
 from Variables import *
 from SubjectObserver import Observer
 
