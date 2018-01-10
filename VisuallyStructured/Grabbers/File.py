@@ -42,7 +42,7 @@ class FileGrabber(FlowBlockGrabber):
             files = os.listdir(path)
             selectedFiles = []
             for file in files:
-                filename = path+"\\"+file
+                filename = os.path.join(path, file)
                 if self.__checkExtension(filename):
                     selectedFiles.append(filename)
             self.__fileNameList = selectedFiles
