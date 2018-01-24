@@ -8,6 +8,7 @@ class Settings(object):
     def __init__(self):
         self.__settings_file = "settings.yaml"
         self.__yaml = ruamel.yaml.YAML()
+        self.__can_save = True
         #self.__yaml.register_class(SettingValues)
 
         if not os.path.isfile(self.__settings_file) or not self.load_setting():
@@ -19,6 +20,7 @@ class Settings(object):
                 "window_geometry": None
             }
             self.save_setting()
+
 
     @property
     def log_dir(self) -> str:
@@ -51,8 +53,16 @@ class Settings(object):
         self.save_setting()
 
     def save_setting(self):
-        with open(self.__settings_file, 'w') as stream:
-            self.__yaml.dump(self.__settings_values, stream)
+        if not self.__can_save: # this should only be tried once
+            return False
+        try:
+            with open(self.__settings_file, 'w') as stream:
+                self.__yaml.dump(self.__settings_values, stream)
+        except PermissionError as ex:
+            logging.error("Could not save to settings file %s due to permission error." % self.__settings_file)
+            self.__can_save = False
+            return False
+        return True
 
     def load_setting(self):
         with open(self.__settings_file, 'r') as stream:

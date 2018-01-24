@@ -50,12 +50,12 @@ class FlowBlockFactory(object):
 
         def _AddBlockType(self, blocktype, name=None):
             if not name:
-                block = blocktype()
+                #block = blocktype()
                 bases =  blocktype.__bases__
                 if len(bases):
-                    name = bases[0]().name + "." + block.name
+                    name = bases[0].__name__ + "." + blocktype.__name__
                 else:
-                    name = block.name
+                    name = blocktype.__name__
             self._classList.append(FlowBlockFactory._BlockType(blocktype, name))
 
         def Create(self, type):
@@ -95,7 +95,13 @@ class FlowBlock(Var):
             return self.__class__.type_name
         return self.__class__.__bases__[0].type_name + "." + self.__class__.type_name
 
-
+    @staticmethod
+    def imported():
+        '''
+        This function can be overridden in case of an import error.
+        :return: Is this block available?
+        '''
+        return True
 
     def GetNextSteps(self):
         return self._nextSteps

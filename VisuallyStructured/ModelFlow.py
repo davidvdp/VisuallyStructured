@@ -51,8 +51,13 @@ class Flow(object):
 
     def load_from(self, source_file: str):
         if os.path.isfile(source_file):
-            with open(source_file, 'rb') as f:
-                tmp_dict = pickle.load(f)
+            try:
+                with open(source_file, 'rb') as f:
+                    tmp_dict = pickle.load(f)
+            except EOFError as ex:
+                logging.error("Could not load pickle %s; file is probably corrupt." %source_file)
+                return
+
             self.__dict__.update(tmp_dict)
             # make sure it starts executing from the first step
             self.reset_next_block_to_be_executed()

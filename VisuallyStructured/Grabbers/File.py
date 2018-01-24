@@ -1,6 +1,4 @@
-from Variables import Var
 from Variables import PathVar, BoolVar
-from Variables import ImageVar
 from FlowBlocks import FlowBlockGrabber
 from FlowBlocks import FlowBlockFactory
 import os

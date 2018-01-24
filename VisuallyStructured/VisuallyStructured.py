@@ -5,10 +5,12 @@ import os
 from StandardSettings import Settings
 
 from Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCorrection, AddValue, MultiplyValue, SelectChannel
-from Grabbers import File
+from Grabbers import File, picam
+#TODO: Instead of pickeling, save settings to human readable YAML
 #TODO: Create tree like structure for properties within a block
 #TODO: Use icon to distinguish block types from one another
 
+#TODO: Should also work headless
 #TODO: Add conditions / multiple columns / for x in bla
 #TODO: Allow for the use of del ctrl-c, ctrl-v etc.
 #TODO: Make sure that all user events have a try catch
@@ -38,11 +40,18 @@ def setLogging(settings):
         for i, file in enumerate(files):
             if i >= nr_files - max_files:
                 break
-            os.remove(log_dir+"\\"+file)
+            try:
+                os.remove(os.path.join( log_dir, file) )
+            except PermissionError as ex:
+                logging.error("Could not remove file %s due to permission error." %os.path.join( log_dir, file))
 
 
     time = strftime( "%Y%m%d", localtime())
-    logging.basicConfig(filename="%s\%s_log.csv" %(log_dir, time),level=logging.INFO,format='%(asctime)s;%(levelname)s;%(message)s')
+    try:
+        logging.basicConfig(filename="%s_log.csv" %(os.path.join( log_dir, time )),level=logging.INFO,format='%(asctime)s;%(levelname)s;%(message)s')
+    except PermissionError as ex:
+        logging.error("Could not create logging file %s due to permission error." % os.path.join(log_dir, time))
+
     logFormatter = logging.Formatter('%(asctime)s\t[%(levelname)s]\t%(message)s')
     rootLogger = logging.getLogger()
     consoleHandler = logging.StreamHandler()
