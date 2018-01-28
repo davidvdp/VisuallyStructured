@@ -76,13 +76,13 @@ class ModelResults(Subject):
 
     def OnFlowModelChange(self,flow):
         """Removes all blocks from results that have been removed from flow, keeps data of blocks that are kept and adds new blocks"""
-        listofnames = flow.GetListOfBlockNames()
+        listofnames = flow.get_list_of_block_names()
         oldresults = self._results.GetResultDict()
         keysToKeep = set(oldresults) & set(listofnames)
         oldresults = {key: oldresults[key] for key in keysToKeep} # remove results not in the new flow
         keystoadd = set(listofnames) - set(oldresults)
         for key in keystoadd:
-            flowblock = flow.GetBlockByName(key)
+            flowblock = flow.get_block_by_name(key)
             if flowblock.OutputVars is None or len(flowblock.OutputVars) is 0:
                 continue
             oldresults[key] = flowblock.OutputVars # add result for new blocks

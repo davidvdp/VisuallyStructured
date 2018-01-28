@@ -8,7 +8,7 @@ class Var(object):
     self.SubVariables.
 
     GetVariableIDs() gets an address like string for every parameter associated to this variable. Implement own GetVariableIDs()
-    when type is a stub (i.e. does not have other SubVariables liek float or int).
+    when type is a stub (i.e. does not have other SubVariables like float or int).
 
     It allows objects that inherit from Var to draw itself (implement when necessary).
     """

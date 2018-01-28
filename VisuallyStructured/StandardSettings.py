@@ -1,6 +1,6 @@
+import os
 from yaml import load, dump
 
-import os
 import logging
 """
 Contains the standard settings which are saved to a yaml on first start, after that the yaml file is loaded.
