@@ -1,5 +1,7 @@
 # VisuallyStructured
 Computer Vision Gui App
 
-Install:
-pip install ruamel.yaml
+# Libraries to install
+* Numpy
+* Opencv 3.x.x
+* Pillow
