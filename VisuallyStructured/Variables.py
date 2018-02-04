@@ -418,5 +418,16 @@ def main():
     varids = unpickeldline.GetVariableIDs()
     print(varids)
 
+def get_block_dict_structure(var: Var):
+    if var.SubVariables is None or len(var.SubVariables) < 1:
+        return var.value
+    sub_vars = {}
+    for key, val in var.SubVariables.items():
+        sub_vars[key] = get_block_dict_structure(val)
+    if len(sub_vars) < 1:
+        return var.value
+
+    return sub_vars
+
 if __name__ == "__main__":
     main()

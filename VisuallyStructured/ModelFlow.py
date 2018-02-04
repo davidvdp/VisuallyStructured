@@ -7,6 +7,7 @@ from threading import Lock
 from SubjectObserver import Subject
 import ControllerResults
 from FlowBlocks import FlowBlockFactory
+from Variables import get_block_dict_structure
 
 level_execution_lock = Lock()
 
@@ -47,10 +48,11 @@ class Flow(object):
         block_names = self.get_list_of_block_names()
         for block_name in block_names:
             block = self.get_block_by_name(block_name)
+            dict_stucture = get_block_dict_structure(block)
             # save type of block
             yaml_data[block.name] = {
                 self.__type_name: block.type,
-                self.__sub_var_name : block.GetVariableIDs()
+                self.__sub_var_name : dict_stucture
             }
 
 
