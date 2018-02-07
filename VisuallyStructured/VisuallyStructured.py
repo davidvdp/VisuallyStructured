@@ -22,7 +22,6 @@ from Grabbers import File
 #TODO: Automatic new line for text in block
 #TODO: Feedback for saving changes for property does also popup when current block is selected again.
 
-
 def setLogging(settings):
     log_dir = settings.log_dir
 
@@ -50,6 +49,7 @@ def setLogging(settings):
     rootLogger.addHandler(consoleHandler)
 
 def main():
+    global settings
     settings = Settings()
     setLogging(settings)
 

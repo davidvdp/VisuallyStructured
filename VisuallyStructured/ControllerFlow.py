@@ -44,7 +44,7 @@ class ControllerFlow(object):
         if types.count(blocktype):
             # is an existing type so we can add it.
             flow = self.__flowmodel.GetFlow()
-            newBlock = factory.Create(blocktype)
+            newBlock = factory.create(blocktype)
             flow.AddFlowBlock(newBlock,col=col, afterblock=afterblock, beforeblock=beforeblock)
             self.__flowmodel.SetFlow(flow)
         else:
@@ -77,18 +77,18 @@ class ControllerFlow(object):
         if block:
             flow = self.__flowmodel.GetFlow()
 
-            while flow.GetBlockByName(new_name) is not None:
+            while flow.get_block_by_name(new_name) is not None:
                 name, index = self._get_name_and_index(new_name)
                 new_name = name + "_" + str(index+1)
 
-            block_in_flow = flow.GetBlockByName(block.name)
+            block_in_flow = flow.get_block_by_name(block.name)
             block_in_flow.name = new_name
             self.__flowmodel.SetFlow(flow)
 
     def set_variable_value_by_id(self, id, value, is_reference=False):
         blockname = id.split(".")[0]
         flow = self.__flowmodel.GetFlow()
-        block = flow.GetBlockByName(blockname)
+        block = flow.get_block_by_name(blockname)
         if block is None:
             return None
         new_value = block.set_variable_value_by_id(id, value=value, is_reference=is_reference) #if outside of min max value might change

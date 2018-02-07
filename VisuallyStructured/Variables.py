@@ -8,21 +8,24 @@ class Var(object):
     self.SubVariables.
 
     GetVariableIDs() gets an address like string for every parameter associated to this variable. Implement own GetVariableIDs()
-    when type is a stub (i.e. does not have other SubVariables liek float or int).
+    when type is a stub (i.e. does not have other SubVariables like float or int).
 
     It allows objects that inherit from Var to draw itself (implement when necessary).
     """
     def __init__(self, name):
         """
-        Takes a name for your custom variable, and initialized the dictianary containing all sub variables.
-        :param name:
+        Takes a name for your custom variable, and initializes the dictionary containing all sub variables.
+        Optionally settings might be provided to create the subvariables with
+        :param name: Name of variable
+        :param settings: settings to create the subvariables with as a dict with similar structure as yaml file.
         """
-        self.SubVariables = dict() #contains all nested variables (e.g. a line can be constructed from points
+        self.SubVariables = dict() #contains all nested variables (e.g. a line can be constructed from
         self.__name = name
         self.Limits = None
         self.__delimiter = "."
         self.flowidreference = None
         self.is_reference = False
+
 
     @property
     def name(self):
@@ -77,15 +80,39 @@ class Var(object):
                 varids[name + self.__delimiter + keysub] = valsub
         return varids
 
+    def set_variable_by_settings_dict(self, settings):
+        """
+        Saves settings typically coming from a yaml flow file to the subvariables of this specific block. It uses
+        set_variable_value_by_id.
+        :param settings: settings dict
+        :return: None
+        """
+        def __set_var(self, settings: dict, accumulated_id: str):
+            value = settings.get('value')
+            is_reference = settings.get('is_reference')
+            # check if this is a stub variable
+            if value is not None and is_reference is not None:
+                self.set_variable_value_by_id(accumulated_id, value, is_reference)
+            else:
+                for key, value in settings.items():
+                    accumulated_id_new = accumulated_id + '.' + key
+                    __set_var(self,value,accumulated_id_new)
+
+        for key, value in settings.items():
+            __set_var(self, value, key)
+
+
+
     def set_variable_value_by_id(self, id: str, value, is_reference=False):
         """
-        Sets a specific subvariable of this Var object
+        Sets a specific subvariable of this Var object. Id is in the form of:
+        Blockname.Variablename.Variabletype.Variablename.VariableType...
         :param id: variable id to set
         :param value: value to set it to
         :param is_reference: is the value a reference to a result?
         :return: value it has been set to. It might change if the value does not adhere to the rules of that variable.
         """
-        if self.Stub():
+        if self.stub:
             obj = self
         else:
             obj = self.get_variable_by_id(id)
@@ -152,22 +179,22 @@ class Var(object):
         return vars
 
     def Stub(self):
+        """
+        If no sub variables are available it returns True.
+        :return: is this a stub? as a bool
+        """
         if (len(self.SubVariables)):
             return False
         else:
             return True
 
-    def Save(self, filename):
-        with open(filename, "wb") as f:
-            pickle.dump(self, f)
-
-    def Load(filename):
-        with open(filename,"rb") as f:
-            return pickle.load(f)
+    @property
+    def stub(self):
+        return self.Stub()
 
 class StubVar(Var):
-    def __init__(self, type, name):
-        super().__init__(name=name)
+    def __init__(self, type, name, *args, **kwargs ):
+        super().__init__(name=name, *args, **kwargs)
         self.__type = type
         self.SubVariables = dict()
 

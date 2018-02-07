@@ -10,7 +10,7 @@ class TestFlowBlocks(unittest.TestCase):
         self.assertGreater(len(types),0)
 
     def test_sobel_creation(self):
-        sobel = FlowBlockFactory().Create("Filter.Sobel")
+        sobel = FlowBlockFactory().create("Filter.Sobel")
         self.assertIsInstance(sobel,Sobel)
         ids = sobel.GetVariableIDs()
         ids_expected = {
@@ -23,7 +23,7 @@ class TestFlowBlocks(unittest.TestCase):
         self.assertEqual(ids,ids_expected)
 
     def test_sobel_execution(self):
-        sobel = FlowBlockFactory().Create("Filter.Sobel")
+        sobel = FlowBlockFactory().create("Filter.Sobel")
         image = cv2.imread("..\\TestImages\\image5_Sobel.png", 0)
 
         #test dx

@@ -1,62 +1,82 @@
-from SubjectObserver import Subject
 import logging
 import os
 import pickle
-import ControllerResults
-import copy
+from yaml import dump, load
 from threading import Lock
-import sys,traceback
 
-
-
-
+from SubjectObserver import Subject
+import ControllerResults
+from FlowBlocks import get_dict_structure_for_block, get_block_from_dict_structure
 
 level_execution_lock = Lock()
 
 class Flow(object):
     def __init__(self):
-        self._jSONFileLocation = ""
+        self.__yamlfile = "flow.current"
         self.__startBlock = None
         self.__nextBlocksToBeExecuted = [self.__startBlock]
+
 
     @property
     def next_blocks_to_execute(self):
         return self.__nextBlocksToBeExecuted
-
 
     def reset_next_block_to_be_executed(self):
         self.__nextBlocksToBeExecuted = [self.__startBlock]
 
     def save(self):
         global setttings
-        flow_file = "flow.current"
+        flow_file = self.__yamlfile
         self.save_to(flow_file)
 
     def save_to(self, destination_file: str):
+        """
+        Saves yaml file with all settings of flow blocks and their order
+        :param destination_file: file to save to
+        :return: None
+        """
+        # remove old file
         if os.path.exists(destination_file):
             os.remove(destination_file)
 
-        # remove al np images to minimize file size
-        #flow_to_save = copy.copy(self)
-        #flow_to_save.
+        yaml_data = {}
 
-        with open(destination_file, 'wb') as f:
-            pickle.dump(self.__dict__, f)
+        # get all blocks and extract data from them
+        block_names = self.get_list_of_block_names()
+        for block_name in block_names:
+            block = self.get_block_by_name(block_name)
+            yaml_data.update(get_dict_structure_for_block(block))
+
+        with open(destination_file, 'w') as stream:
+            dump(yaml_data, stream, default_flow_style=False)
+
         logging.info("Saved flow to file: %s." %destination_file)
+
+    def clear(self):
+        self.__startBlock = None
+        self.__nextBlocksToBeExecuted = [self.__startBlock]
 
     def load(self):
         global setttings
-        flow_file = "flow.current"
-        self.load_from(flow_file)
+        self.load_from(self.__yamlfile)
 
     def load_from(self, source_file: str):
         if os.path.isfile(source_file):
-            with open(source_file, 'rb') as f:
-                tmp_dict = pickle.load(f)
-            self.__dict__.update(tmp_dict)
-            # make sure it starts executing from the first step
-            self.reset_next_block_to_be_executed()
-            logging.info("Loaded flow from file: %s." %source_file)
+            with open(source_file, 'r') as stream:
+                yaml_data = load(stream)
+                if yaml_data is None:
+                    return False
+                elif len(yaml_data) is 0:
+                    return False
+
+            # remove old blocks
+            self.clear()
+
+
+            for block, property in yaml_data.items():
+                block_obj = get_block_from_dict_structure(block, property)
+                self.AddFlowBlock(block_obj)
+
 
     def GetStartBlock(self):
         return self.__startBlock
@@ -131,10 +151,10 @@ class Flow(object):
         names.append(startblock.name)
         return names
 
-    def GetListOfBlockNames(self):
+    def get_list_of_block_names(self):
         return self.__getListOfBlockNames(self.__startBlock)
 
-    def GetBlockByName(self, name):
+    def get_block_by_name(self, name):
         return self.__getBlockByName(name,self.__startBlock)
 
     def RemoveBlock(self, blockToRemove):
