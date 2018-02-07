@@ -8,8 +8,8 @@ import numpy as np
 class MultiplyValue(FlowBlockFilter):
     """Class that implements MultiplyValue"""
     type_name = "MultiplyValue"
-    def __init__(self, name=type_name):
-        super().__init__(name=name)
+    def __init__(self, name=type_name, settings=None):
+        super().__init__(name)
         self.SubVariables = {
             "Image": ImageVar(),
             "Value": FloatVar(min=0.0, max=255.0)

@@ -6,8 +6,7 @@ from threading import Lock
 
 from SubjectObserver import Subject
 import ControllerResults
-from FlowBlocks import FlowBlockFactory
-from Variables import get_block_dict_structure
+from FlowBlocks import get_dict_structure_for_block, get_block_from_dict_structure
 
 level_execution_lock = Lock()
 
@@ -16,8 +15,7 @@ class Flow(object):
         self.__yamlfile = "flow.current"
         self.__startBlock = None
         self.__nextBlocksToBeExecuted = [self.__startBlock]
-        self.__sub_var_name = "sub_variables"
-        self.__type_name = "type"
+
 
     @property
     def next_blocks_to_execute(self):
@@ -41,20 +39,13 @@ class Flow(object):
         if os.path.exists(destination_file):
             os.remove(destination_file)
 
-        # stucture that should be filled with flow data
         yaml_data = {}
 
         # get all blocks and extract data from them
         block_names = self.get_list_of_block_names()
         for block_name in block_names:
             block = self.get_block_by_name(block_name)
-            dict_stucture = get_block_dict_structure(block)
-            # save type of block
-            yaml_data[block.name] = {
-                self.__type_name: block.type,
-                self.__sub_var_name : dict_stucture
-            }
-
+            yaml_data.update(get_dict_structure_for_block(block))
 
         with open(destination_file, 'w') as stream:
             dump(yaml_data, stream, default_flow_style=False)
@@ -81,13 +72,11 @@ class Flow(object):
             # remove old blocks
             self.clear()
 
-            fbf = FlowBlockFactory()
 
             for block, property in yaml_data.items():
-                block = fbf.Create(property[self.__type_name])
-                for id, value in property[self.__sub_var_name].items():
-                    block.set_variable_value_by_id(id, value)
-                self.AddFlowBlock(block)
+                block_obj = get_block_from_dict_structure(block, property)
+                self.AddFlowBlock(block_obj)
+
 
     def GetStartBlock(self):
         return self.__startBlock

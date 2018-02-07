@@ -44,7 +44,7 @@ class ControllerFlow(object):
         if types.count(blocktype):
             # is an existing type so we can add it.
             flow = self.__flowmodel.GetFlow()
-            newBlock = factory.Create(blocktype)
+            newBlock = factory.create(blocktype)
             flow.AddFlowBlock(newBlock,col=col, afterblock=afterblock, beforeblock=beforeblock)
             self.__flowmodel.SetFlow(flow)
         else:
