@@ -5,6 +5,7 @@ import logging
 from GUI.GUIInterface import View
 import os
 
+
 class ViewMenu(View):
     def __init__(self, parent):
         self.menu = Menu(parent.root)
@@ -21,7 +22,7 @@ class ViewMenu(View):
         self.menu.add_cascade(label="Help", menu=helpmenu)
         helpmenu.add_command(label="About...", command=self.onAbout)
 
-        self.__file_types =[("Flow File", "*.flw")]
+        self.__file_types = [("Flow File", "*.flw")]
 
         self._parent = parent
 
@@ -32,9 +33,9 @@ class ViewMenu(View):
     def on_open_file(self):
         last_selected_dir = self.get_controller().settings.last_selected_dir
         filename = filedialog.askopenfilename(defaultextension=".flw",
-                                                initialdir=last_selected_dir,
-                                                initialfile="Untitled.flw",
-                                                filetypes=self.__file_types)
+                                              initialdir=last_selected_dir,
+                                              initialfile="Untitled.flw",
+                                              filetypes=self.__file_types)
         if filename == None:
             return
 
@@ -43,9 +44,9 @@ class ViewMenu(View):
     def on_save_file(self):
         last_selected_dir = self.get_controller().settings.last_selected_dir
         filename = filedialog.asksaveasfilename(defaultextension=".flw",
-                                            initialdir=last_selected_dir,
-                                            initialfile="Untitled.flw",
-                                            filetypes=self.__file_types)
+                                                initialdir=last_selected_dir,
+                                                initialfile="Untitled.flw",
+                                                filetypes=self.__file_types)
         if filename == None:
             return
 

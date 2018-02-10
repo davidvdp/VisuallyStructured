@@ -6,8 +6,10 @@ from StandardSettings import Settings
 from Controller import Controller
 
 # these imports make the blocks available for the blockfactory.
-from FlowBlocks.Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCorrection, AddValue, MultiplyValue, SelectChannel
+from FlowBlocks.Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCorrection, AddValue, MultiplyValue, \
+    SelectChannel
 from FlowBlocks.Grabbers import File
+
 
 # TODO: Create tree like structure for properties within a block
 # TODO: Use icon to distinguish block types from one another
@@ -41,7 +43,7 @@ def set_logging(settings):
         for i, file in enumerate(files):
             if i >= nr_files - max_files:
                 break
-            os.remove(log_dir+"\\"+file)
+            os.remove(log_dir + "\\" + file)
 
     time = strftime("%Y%m%d", localtime())
     logging.basicConfig(filename="%s\%s_log.csv" % (log_dir, time), level=logging.INFO,

@@ -6,8 +6,10 @@ from FlowBlocks import *
 from SubjectObserver import Observer
 import inspect
 
-class ViewFlow(Observer,View):
+
+class ViewFlow(Observer, View):
     """Takes care of the presentation of the Flow diagram."""
+
     def __init__(self, parent, col=0, row=0, root=None):
         super().__init__(parent, col=col, row=row, scrollbars=True, sticky=NSEW, root=root)
         self._startCircle = None
@@ -44,7 +46,7 @@ class ViewFlow(Observer,View):
         # then add all blocks from flow
         while startBlock is not None:
             self._currentFlowBlocks.append(FlowActionBlockGUI(self, startBlock))
-            nextSteps =  startBlock.GetNextSteps()
+            nextSteps = startBlock.GetNextSteps()
             if len(nextSteps):
                 startBlock = nextSteps[0]
             else:
@@ -88,7 +90,7 @@ class FlowBlockGUI(object):
                          end[0] + sizeArrowPoint / 2, end[1] - sizeArrowPoint]
         self._w.create_polygon(pointsPolygon)
 
-    def _on_click_coloring_button_press(self,event):
+    def _on_click_coloring_button_press(self, event):
         self._w.itemconfig(self._block, fill=self._colorClick)
         self._w.update_idletasks()
 
@@ -121,7 +123,7 @@ class FlowBlockGUI(object):
         flowBlockMenu = Menu(self._parent._frame)
         rmenu.add_cascade(label="Add Block", menu=flowBlockMenu)
         for type in types:
-            flowBlockMenu.add_command(label=type, command=lambda t=type: self.ContextFlowBlockSelected(t) )
+            flowBlockMenu.add_command(label=type, command=lambda t=type: self.ContextFlowBlockSelected(t))
         rmenu.add_command(label="Delete", command=self.delete)
         rmenu.add_command(label="Rename...", command=self.rename)
 
@@ -131,10 +133,9 @@ class FlowBlockGUI(object):
         '''Sends a remove request to the controller. The actual removal is done with an update of the flow.'''
         self._parent._parent.controller.flow.RemoveBlock(self._flowBlockObject)
 
-
-
     def rename(self):
         '''Opens a dialog asking user to enter a new name'''
+
         class RenameDialog:
             def __init__(self, parent):
                 top = self.top = Toplevel(parent._frame)
@@ -156,76 +157,80 @@ class FlowBlockGUI(object):
         dialog = RenameDialog(self._parent)
         self._parent._frame.wait_window(dialog.top)
         if dialog.new_name is None or dialog.new_name == "":
-            return # invalid name specified
+            return  # invalid name specified
         if self._flowBlockObject.name == dialog.new_name:
-            return #did not change
+            return  # did not change
         self._parent.get_controller().flow.change_name_of_block(self._flowBlockObject, dialog.new_name)
 
-        #self.parent.parent.controller.SetVariableValueByID(self.id, value=newvalue)
+        # self.parent.parent.controller.SetVariableValueByID(self.id, value=newvalue)
 
     def ContextFlowBlockSelected(self, type):
-        logging.info("Adding flowblock of type %s" %type)
-        self._parent._parent.controller.flow.AddBlock(blocktype=type,afterblock=self._flowBlockObject)
+        logging.info("Adding flowblock of type %s" % type)
+        self._parent._parent.controller.flow.AddBlock(blocktype=type, afterblock=self._flowBlockObject)
 
-    def OnLeftClick(self,event):
+    def OnLeftClick(self, event):
         logging.warning("OnLeftClick was not implemented for this type op block.")
 
-    def OnRightClick(self,event):
+    def OnRightClick(self, event):
         logging.warning("OnRightClick was not implemented for this type op block.")
 
 
 class FlowStartBlockGUI(FlowBlockGUI):
     """Circle that represents the start of the flow and image source"""
+
     def __init__(self, master):
         height = 100
         super(FlowStartBlockGUI, self).__init__(master, "Start", height=height)
         self._block = self._w.create_oval(2, 2, 100, 50, fill=self._color)
-        self._w.create_text(50,25,text="Start")
-        self.draw_arrow( (50, 50), (50, height))
+        self._w.create_text(50, 25, text="Start")
+        self.draw_arrow((50, 50), (50, height))
 
-    def OnLeftClick(self,event):
+    def OnLeftClick(self, event):
         pass
 
 
 class FlowActionBlockGUI(FlowBlockGUI):
     """Square that represents a flow action"""
+
     def __init__(self, master, flow_block_object: FlowBlockGUI):
-        super(FlowActionBlockGUI, self).__init__(master, name=flow_block_object.name, flow_block_object=flow_block_object)
+        super(FlowActionBlockGUI, self).__init__(master, name=flow_block_object.name,
+                                                 flow_block_object=flow_block_object)
         self._block = self._w.create_rectangle(2, 2, 100, 100, fill=self._color)
-        self._w.create_text(50,50,text=flow_block_object.name)
+        self._w.create_text(50, 50, text=flow_block_object.name)
         small = Font(size=7, weight='bold')
-        self._w.create_text(4, 4, text=flow_block_object.type,anchor="nw", font=small)
+        self._w.create_text(4, 4, text=flow_block_object.type, anchor="nw", font=small)
         self.draw_arrow((50, 100), (50, 150))
 
-    def OnRightClick(self,event):
+    def OnRightClick(self, event):
         try:
             self.ContextMenu(event.x_root, event.y_root)
         except:
             if (__debug__):
                 raise sys.exc_info()[0](sys.exc_info()[1])
-            logging.error("Unexpected error: %s; " %(sys.exc_info()[0],sys.exc_info()[1]))
+            logging.error("Unexpected error: %s; " % (sys.exc_info()[0], sys.exc_info()[1]))
 
-    def OnLeftClick(self,event):
+    def OnLeftClick(self, event):
         '''This loads the parameters of the block in the properties window'''
         try:
             self._parent.get_controller().OpenPropertiesWindowsFor(self._flowBlockObject)
         except:
             if (__debug__):
                 raise sys.exc_info()[0](sys.exc_info()[1])
-            logging.error("Unexpected error: %s; " %(sys.exc_info()[0],sys.exc_info()[1]))
+            logging.error("Unexpected error: %s; " % (sys.exc_info()[0], sys.exc_info()[1]))
 
 
 class FlowAddBlockGUI(FlowBlockGUI):
     """Square that represents a flow action"""
+
     def __init__(self, master):
         super(FlowAddBlockGUI, self).__init__(master, "+", height=50)
-        helv36 = Font(family='Helvetica',size=36, weight='bold')
-        self._block = self._w.create_text(50,25,text="+",font=helv36, fill=self._color)
+        helv36 = Font(family='Helvetica', size=36, weight='bold')
+        self._block = self._w.create_text(50, 25, text="+", font=helv36, fill=self._color)
 
-    def OnLeftClick(self,event):
+    def OnLeftClick(self, event):
         try:
             self.ContextMenu(event.x_root, event.y_root)
         except:
             if (__debug__):
                 raise sys.exc_info()[0](sys.exc_info()[1])
-            logging.error("Unexpected error: %s; " %(sys.exc_info()[0],sys.exc_info()[1]))
+            logging.error("Unexpected error: %s; " % (sys.exc_info()[0], sys.exc_info()[1]))

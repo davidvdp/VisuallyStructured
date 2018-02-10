@@ -7,6 +7,7 @@ from Controller import ControllerResults
 class SelectChannel(FlowBlockFilter):
     """Class that implements SelectChannel"""
     type_name = "SelectChannel"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {
@@ -25,8 +26,8 @@ class SelectChannel(FlowBlockFilter):
             return
 
         if len(image.shape) > 2:
-            #not grayscaled
-            res = image[:, :, channel-1]
+            # not grayscaled
+            res = image[:, :, channel - 1]
         else:
             logging.warning("Could not get image channel %d in %s, because image is grayscaled" % (channel, self.name))
             res = image.copy()

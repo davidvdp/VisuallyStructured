@@ -9,12 +9,12 @@ from FlowBlocks.FlowBlocks import get_dict_structure_for_block, get_block_from_d
 
 level_execution_lock = Lock()
 
+
 class Flow(object):
     def __init__(self):
         self.__yamlfile = "flow.current"
         self.__startBlock = None
         self.__nextBlocksToBeExecuted = [self.__startBlock]
-
 
     @property
     def next_blocks_to_execute(self):
@@ -49,7 +49,7 @@ class Flow(object):
         with open(destination_file, 'w') as stream:
             dump(yaml_data, stream, default_flow_style=False)
 
-        logging.info("Saved flow to file: %s." %destination_file)
+        logging.info("Saved flow to file: %s." % destination_file)
 
     def clear(self):
         self.__startBlock = None
@@ -71,11 +71,9 @@ class Flow(object):
             # remove old blocks
             self.clear()
 
-
             for block, property in yaml_data.items():
                 block_obj = get_block_from_dict_structure(block, property)
                 self.AddFlowBlock(block_obj)
-
 
     def GetStartBlock(self):
         return self.__startBlock
@@ -136,7 +134,7 @@ class Flow(object):
             return startblock
         else:
             for nextblock in startblock.GetNextSteps():
-                result = self.__getBlockByName(name,nextblock)
+                result = self.__getBlockByName(name, nextblock)
                 if result:
                     return result
         return None
@@ -146,7 +144,7 @@ class Flow(object):
         if startblock is None:
             return names
         for nextblock in startblock.GetNextSteps():
-            names = self.__getListOfBlockNames( nextblock)
+            names = self.__getListOfBlockNames(nextblock)
         names.append(startblock.name)
         return names
 
@@ -154,7 +152,7 @@ class Flow(object):
         return self.__getListOfBlockNames(self.__startBlock)
 
     def get_block_by_name(self, name):
-        return self.__getBlockByName(name,self.__startBlock)
+        return self.__getBlockByName(name, self.__startBlock)
 
     def RemoveBlock(self, blockToRemove):
         """
@@ -174,17 +172,17 @@ class Flow(object):
                 self.__startBlock = None
                 return True
         else:
-            #use recursive function to find step to remove
+            # use recursive function to find step to remove
             return self.__removeBlock(blockToRemove, self.__startBlock)
 
-    def execute_flow_once(self, controller_results: ControllerResults ):
+    def execute_flow_once(self, controller_results: ControllerResults):
         not_started_yet = True
 
         blocks_executed = []
 
         while not self.__startBlock in self.next_blocks_to_execute or not_started_yet:
             not_started_yet = False
-            blocks_executed.extend( self.execute_step_by_step(controller_results=controller_results))
+            blocks_executed.extend(self.execute_step_by_step(controller_results=controller_results))
 
         return blocks_executed
 
@@ -193,7 +191,7 @@ class Flow(object):
         if self.__nextBlocksToBeExecuted is None:
             return None
 
-        if len(self.__nextBlocksToBeExecuted ) is 0:
+        if len(self.__nextBlocksToBeExecuted) is 0:
             self.__nextBlocksToBeExecuted = [self.GetStartBlock()]
 
         nextBlocks = []
@@ -206,16 +204,18 @@ class Flow(object):
 
         self.__nextBlocksToBeExecuted = nextBlocks
 
-        if len(self.__nextBlocksToBeExecuted ) is 0:
+        if len(self.__nextBlocksToBeExecuted) is 0:
             self.__nextBlocksToBeExecuted = [self.GetStartBlock()]
 
         controller_results.add_blocks_to_result(blocksExecuted)
 
         return blocksExecuted
 
+
 class ModelFlow(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""
-    def __init__(self, settings, modelresult = None):
+
+    def __init__(self, settings, modelresult=None):
         super().__init__()
         self._flow = Flow()
 

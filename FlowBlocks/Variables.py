@@ -13,6 +13,7 @@ class Var(object):
 
     It allows objects that inherit from Var to draw itself (implement when necessary).
     """
+
     def __init__(self, name):
         """
         Takes a name for your custom variable, and initializes the dictionary containing all sub variables.
@@ -46,7 +47,7 @@ class Var(object):
     def value(self, value):
         raise ValueError("Cannot set value. Value getter and setter not implemented")
 
-    def Print(self, level = 0):
+    def Print(self, level=0):
         """
         Gets a representation of all data needed for this object, and returns this as structured text
         :param level: determines the indentation level.
@@ -57,25 +58,25 @@ class Var(object):
 
         printout = ""
         for key, val in self.SubVariables.items():
-            printout += "\n"+tabs+" (" + str(key) + ")"
-            printout += val.Print(level=level+1)
+            printout += "\n" + tabs + " (" + str(key) + ")"
+            printout += val.Print(level=level + 1)
         return "\n" + tabs + self.name + printout
 
-    def GetLimits(self,id):
+    def GetLimits(self, id):
         obj = self.get_variable_by_id(id)
         if obj is None:
             return None
         return obj.Limits
 
-    def GetVariableIDs(self,name=None):
+    def GetVariableIDs(self, name=None):
         if self.Stub():
             raise NotImplementedError("Stub variable types should implement their own GetVariableIDs(name) method")
         if name is None:
             name = self.name
         varids = dict()
-        for key,val in self.SubVariables.items():
+        for key, val in self.SubVariables.items():
             subvarids = val.GetVariableIDs(key)
-            for keysub,valsub in subvarids.items():
+            for keysub, valsub in subvarids.items():
                 varids[name + self.__delimiter + keysub] = valsub
         return varids
 
@@ -86,6 +87,7 @@ class Var(object):
         :param settings: settings dict
         :return: None
         """
+
         def __set_var(self, settings: dict, accumulated_id: str):
             value = settings.get('value')
             is_reference = settings.get('is_reference')
@@ -95,12 +97,10 @@ class Var(object):
             else:
                 for key, value in settings.items():
                     accumulated_id_new = accumulated_id + '.' + key
-                    __set_var(self,value,accumulated_id_new)
+                    __set_var(self, value, accumulated_id_new)
 
         for key, value in settings.items():
             __set_var(self, value, key)
-
-
 
     def set_variable_value_by_id(self, id: str, value, is_reference=False):
         """
@@ -145,7 +145,7 @@ class Var(object):
         :param results_controller:  results controller. Needs this to retrieve the value in case of a output reference.
         :return: The value requested.
         """
-        subvar = self.get_variable_by_id(self.name+self.__delimiter+id)
+        subvar = self.get_variable_by_id(self.name + self.__delimiter + id)
         if subvar is None:
             logging.warning("Subvariable %s does not exist in %s." % (id, self.name))
             return None
@@ -191,27 +191,29 @@ class Var(object):
     def stub(self):
         return self.Stub()
 
+
 class StubVar(Var):
-    def __init__(self, type, name, *args, **kwargs ):
+    def __init__(self, type, name, *args, **kwargs):
         super().__init__(name=name, *args, **kwargs)
         self.__type = type
         self.SubVariables = dict()
 
-    def Print(self, level = 0):
+    def Print(self, level=0):
         tabs = ""
         for i in range(level): tabs += "\t"
         return "\n" + tabs + self.name + ": " + str(self.value)
 
-    def GetVariableIDs(self,name=None):
+    def GetVariableIDs(self, name=None):
         if name:
             varids = {name + "." + self.__type: self.value}
         else:
             varids = {self.__type: self.value}
         return varids
 
-class TextVar(StubVar): # not stringvar because this has already been used by tkinter
+
+class TextVar(StubVar):  # not stringvar because this has already been used by tkinter
     def __init__(self, stringvalue="", name="String"):
-        super().__init__("String",name=name)
+        super().__init__("String", name=name)
         self.value = stringvalue
 
     @property
@@ -224,6 +226,7 @@ class TextVar(StubVar): # not stringvar because this has already been used by tk
     def value(self, value):
         self.flowidreference = None
         self.__value = value
+
 
 class ImageVar(StubVar):
     def __init__(self, image=None, name="Image"):
@@ -240,6 +243,7 @@ class ImageVar(StubVar):
     @value.setter
     def value(self, value):
         self.__value = value
+
 
 class BoolVar(StubVar):
     def __init__(self, boolvalue=False, name="Bool"):
@@ -260,18 +264,19 @@ class BoolVar(StubVar):
             elif value == "False" or value == "false" or value == "0":
                 value = False
             else:
-                return # not parsable, do not change a thing
+                return  # not parsable, do not change a thing
         self.__value = value
 
+
 class IntVar(StubVar):
-    def __init__(self, intvalue=0, name="Int",min=None,max=None):
-        super().__init__("Int",name=name)
-        #self.SubVariables = dict()
+    def __init__(self, intvalue=0, name="Int", min=None, max=None):
+        super().__init__("Int", name=name)
+        # self.SubVariables = dict()
         if min is not None and max is not None and max < min:
             temp = min
             min = max
             max = temp
-        self.Limits = {"min":min, "max":max}
+        self.Limits = {"min": min, "max": max}
         self.value = intvalue
 
     @property
@@ -282,7 +287,7 @@ class IntVar(StubVar):
 
     @value.setter
     def value(self, value):
-        if not isinstance(value,int):
+        if not isinstance(value, int):
             value = int(value)
         self.flowidreference = None
         if self.Limits["min"] is not None and value < self.Limits["min"]:
@@ -291,15 +296,16 @@ class IntVar(StubVar):
             value = self.Limits["max"]
         self.__value = value
 
+
 class FloatVar(StubVar):
-    def __init__(self, floatvalue=0.0, name="Float",min=None,max=None):
-        super().__init__("Float",name=name)
-        #self.SubVariables = dict()
+    def __init__(self, floatvalue=0.0, name="Float", min=None, max=None):
+        super().__init__("Float", name=name)
+        # self.SubVariables = dict()
         if min is not None and max is not None and max < min:
             temp = min
             min = max
             max = temp
-        self.Limits = {"min":min, "max":max}
+        self.Limits = {"min": min, "max": max}
         self.value = floatvalue
 
     @property
@@ -310,7 +316,7 @@ class FloatVar(StubVar):
 
     @value.setter
     def value(self, value):
-        if not isinstance(value,float):
+        if not isinstance(value, float):
             value = float(value)
         self.flowidreference = None
         if self.Limits["min"] is not None and value < self.Limits["min"]:
@@ -346,12 +352,13 @@ class PathVar(StubVar):
         if os.path.isfile(value):
             self.__value = value
         else:
-            logging.warning("Path %s that was provided top the pathvar is not valid." %value)
+            logging.warning("Path %s that was provided top the pathvar is not valid." % value)
+
 
 class IntPointVar(Var):
     def __init__(self, x=IntVar(), y=IntVar(), name="Point"):
         super().__init__(name)
-        self.SubVariables = {"x":IntVar(), "y": IntVar()}
+        self.SubVariables = {"x": IntVar(), "y": IntVar()}
         self.x = x
         self.y = y
 
@@ -361,7 +368,7 @@ class IntPointVar(Var):
 
     @x.setter
     def x(self, x):
-        if not isinstance(x,IntVar):
+        if not isinstance(x, IntVar):
             raise ValueError
         self.SubVariables["x"] = x
 
@@ -371,7 +378,7 @@ class IntPointVar(Var):
 
     @y.setter
     def y(self, y):
-        if not isinstance(y,IntVar):
+        if not isinstance(y, IntVar):
             raise ValueError
         self.SubVariables["y"] = y
 
@@ -379,7 +386,7 @@ class IntPointVar(Var):
 class PointVar(Var):
     def __init__(self, x=FloatVar(), y=FloatVar(), name="Point"):
         super().__init__(name)
-        self.SubVariables = {"x":FloatVar(), "y": FloatVar()}
+        self.SubVariables = {"x": FloatVar(), "y": FloatVar()}
         self.x = x
         self.y = y
 
@@ -389,7 +396,7 @@ class PointVar(Var):
 
     @x.setter
     def x(self, x):
-        if not isinstance(x,FloatVar):
+        if not isinstance(x, FloatVar):
             raise ValueError
         self.SubVariables["x"] = x
 
@@ -399,14 +406,15 @@ class PointVar(Var):
 
     @y.setter
     def y(self, y):
-        if not isinstance(y,FloatVar):
+        if not isinstance(y, FloatVar):
             raise ValueError
         self.SubVariables["y"] = y
+
 
 class LineVar(Var):
     def __init__(self, start=PointVar(), end=PointVar(), name="Line"):
         super().__init__(name)
-        self.SubVariables = {"start":PointVar(), "end":PointVar()}
+        self.SubVariables = {"start": PointVar(), "end": PointVar()}
         self.start = start
         self.end = end
 
@@ -430,19 +438,21 @@ class LineVar(Var):
             raise ValueError
         self.SubVariables["end"] = end
 
+
 def main():
     line = LineVar(IntPointVar(FloatVar(1.0), FloatVar(1.0)), IntPointVar(FloatVar(2.0), FloatVar(2.0)))
     print(line.Print())
 
-    #Pickle Serialization
+    # Pickle Serialization
     filename = "SavedFlows\\testSaveVariables.vsf"
-    pickle.dump(line,open(filename,"wb"))
+    pickle.dump(line, open(filename, "wb"))
 
-    unpickeldline = pickle.load(open(filename,"rb"))
+    unpickeldline = pickle.load(open(filename, "rb"))
 
     # Varid's
     varids = unpickeldline.GetVariableIDs()
     print(varids)
+
 
 if __name__ == "__main__":
     main()

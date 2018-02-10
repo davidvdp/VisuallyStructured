@@ -5,7 +5,8 @@ from tkinter import filedialog, messagebox
 from SubjectObserver import Observer
 import GUI.tkinterGUI
 
-class ViewProperties(Observer,View):
+
+class ViewProperties(Observer, View):
     """Takes care of the presentation of the Flow diagram."""
 
     class VariableField(object):
@@ -27,11 +28,12 @@ class ViewProperties(Observer,View):
 
         def OnValueSave(self):
             value = self.entryValueStringVar.get()
-            is_reference = self.parent.parent.controller.results.exists(value) # check if it exists in the results
-            newvalue = self.parent.parent.controller.flow.set_variable_value_by_id(self.id, value=value, is_reference=is_reference )
+            is_reference = self.parent.parent.controller.results.exists(value)  # check if it exists in the results
+            newvalue = self.parent.parent.controller.flow.set_variable_value_by_id(self.id, value=value,
+                                                                                   is_reference=is_reference)
             self.entryValueStringVar.set(newvalue)
 
-        def OnExternalValueChange(self,value=None):
+        def OnExternalValueChange(self, value=None):
             selected_value = self.optionMenuStringVar.get()
             self.entryValueStringVar.set(selected_value)
 
@@ -40,7 +42,8 @@ class ViewProperties(Observer,View):
             self.entryValueStringVar.set(directory)
 
         def OnOpenFile(self):
-            filename = filedialog.askopenfilename(title="Select File", filetypes=(("image files","*.jpg, *.bmp, *.png"),("all files","*.*")))
+            filename = filedialog.askopenfilename(title="Select File", filetypes=(
+            ("image files", "*.jpg, *.bmp, *.png"), ("all files", "*.*")))
             self.entryValueStringVar.set(filename)
 
         def destroy_all(self):
@@ -74,10 +77,10 @@ class ViewProperties(Observer,View):
                 self.buttonOpenFile.grid(column=6, row=row)
 
     def __init__(self, parent, col=0, row=0, columnspan=1):
-        super().__init__(parent, col=col, row=row, scrollbars=True, columnspan=columnspan,sticky=NSEW)
+        super().__init__(parent, col=col, row=row, scrollbars=True, columnspan=columnspan, sticky=NSEW)
         self.parent = parent
         self.SetHeight(300)
-        #self._frame
+        # self._frame
         self.block = None
         self.labelFrameInput = None
         self.labelFrameOutput = None
@@ -104,19 +107,19 @@ class ViewProperties(Observer,View):
         :param block: block for which to load the values
         :return:
         """
-        logging.info("Loading properties for %s" %block.name)
+        logging.info("Loading properties for %s" % block.name)
 
-        #first check if something changed, for previous properties
+        # first check if something changed, for previous properties
         if self.__var_changed:
             if not messagebox.askyesno("Not Saved Changes",
-                                   "Block variable changes are not saved. Are you sure you want to proceed?"):
+                                       "Block variable changes are not saved. Are you sure you want to proceed?"):
                 return
 
         self.__var_changed = False
 
         self.block = block
 
-        #destroy old stuff
+        # destroy old stuff
         for variableField in self.variable_fields_in:
             variableField.destroy_all()
         # clean old variable list
@@ -128,24 +131,24 @@ class ViewProperties(Observer,View):
         var_ids_in = block.GetVariableIDs()
         if len(var_ids_in) > 0:
             # there are variables available for this block
-            #first show name
+            # first show name
             self.labelFrameInput = LabelFrame(self._frame, text=block.name + ": Inputs")
-            self.labelFrameInput.grid( row=0, column=0)
+            self.labelFrameInput.grid(row=0, column=0)
 
-            #index = -1
+            # index = -1
             for key, val in var_ids_in.items():
                 varField = ViewProperties.VariableField(key, val, self)
                 self.variable_fields_in.append(varField)
 
                 varField.labelKey = Label(self.labelFrameInput, text=key)
-                #self.entryvalues.append(Entry(self.labelFrameInput, textvalue=str(val), command=self.__onValueChange))
+                # self.entryvalues.append(Entry(self.labelFrameInput, textvalue=str(val), command=self.__onValueChange))
                 varField.entryValueStringVar = StringVar(self.labelFrameInput)
                 varField.entryValueStringVar.set(str(val))
                 varField.entryValueStringVar.trace("w", callback=self.on_value_change)
                 varField.entryValue = Entry(self.labelFrameInput, textvariable=varField.entryValueStringVar)
-                #varField.buttonSave = Button(self.labelFrameInput, text="Save", command=varField.OnValueSave)
+                # varField.buttonSave = Button(self.labelFrameInput, text="Save", command=varField.OnValueSave)
 
-                #self.parent.controller.set_variable_value_by_id()
+                # self.parent.controller.set_variable_value_by_id()
                 all_results = self.parent.controller.results.get_results_of_type(key.split(".")[-1])
                 drop_down = []
                 for key, val in all_results.items():
@@ -153,11 +156,13 @@ class ViewProperties(Observer,View):
 
                 if len(drop_down) > 0:
                     varField.optionMenuOptions = drop_down
-                    #self.externalvalues.append(OptionMenu(self.labelFrameInput, "", *options, command=lambda index=index: self.__onExternalValueChange))
+                    # self.externalvalues.append(OptionMenu(self.labelFrameInput, "", *options, command=lambda index=index: self.__onExternalValueChange))
                     varField.optionMenuStringVar = StringVar(self.labelFrameInput)
 
                     varField.optionMenuStringVar.set("")
-                    varField.optionMenuValue = OptionMenu(self.labelFrameInput, varField.optionMenuStringVar, *varField.optionMenuOptions, command=varField.OnExternalValueChange)
+                    varField.optionMenuValue = OptionMenu(self.labelFrameInput, varField.optionMenuStringVar,
+                                                          *varField.optionMenuOptions,
+                                                          command=varField.OnExternalValueChange)
 
                 limits = block.GetLimits(key)
                 limitsAvailable = False
@@ -187,14 +192,14 @@ class ViewProperties(Observer,View):
                     varField.buttonOpenDir = Button(self.labelFrameInput, text="Dir", command=varField.OnOpenDir)
                     varField.buttonOpenFile = Button(self.labelFrameInput, text="File", command=varField.OnOpenFile)
 
-            for i,field in enumerate(self.variable_fields_in):
+            for i, field in enumerate(self.variable_fields_in):
                 field.add_all_to_grid(i)
 
             self.__buttonSave = Button(self.labelFrameInput, text="Save", command=self.__on_save)
             self.__buttonSave.config(state=DISABLED)
-            self.__buttonSave.grid(column=0, row=len(self.variable_fields_in)+1)
+            self.__buttonSave.grid(column=0, row=len(self.variable_fields_in) + 1)
 
-        #destroy old stuff
+        # destroy old stuff
         for variableField in self.variable_fields_out:
             variableField.destroy_all()
         # clean old variable list
@@ -203,7 +208,7 @@ class ViewProperties(Observer,View):
         if self.labelFrameOutput:
             self.labelFrameOutput.destroy()
 
-        #get results, if available, for this block
+        # get results, if available, for this block
         results = self.parent.controller.results.get_results_for_block(block)
 
         if not results == None and len(results) > 0:
@@ -215,5 +220,5 @@ class ViewProperties(Observer,View):
                 self.variable_fields_out.append(varField)
                 varField.labelKey = Label(self.labelFrameOutput, text=key)
 
-            for i,field in enumerate(self.variable_fields_out):
+            for i, field in enumerate(self.variable_fields_out):
                 field.add_all_to_grid(i)

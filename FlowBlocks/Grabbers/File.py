@@ -5,9 +5,11 @@ import os
 import cv2
 import logging
 
+
 class FileGrabber(FlowBlockGrabber):
     type_name = "File"
-    def __init__(self,name="File"):
+
+    def __init__(self, name="File"):
         super().__init__(name=name)
         self.SubVariables = {
             "Dir_or_File": PathVar(),
@@ -28,7 +30,7 @@ class FileGrabber(FlowBlockGrabber):
     def DirOrFile(self, DirOrFile):
         self.SubVariables["Dir_or_File"].value = DirOrFile
 
-    def __checkExtension(self,filename):
+    def __checkExtension(self, filename):
         if (filename.endswith(self.__validExtensions)):
             return True
         return False
@@ -51,7 +53,8 @@ class FileGrabber(FlowBlockGrabber):
             if self.__listCnt >= len(self.__fileNameList):
                 self.__listCnt = 0
 
-            logging.info("Ready to grab image %d of %d; %s" %(self.__listCnt+1, len(self.__fileNameList), self.__fileNameList[self.__listCnt]))
+            logging.info("Ready to grab image %d of %d; %s" % (
+            self.__listCnt + 1, len(self.__fileNameList), self.__fileNameList[self.__listCnt]))
             return self.__fileNameList[self.__listCnt]
         else:
             logging.warning("Could not grab image; no (valid) files are specified.")
@@ -60,7 +63,6 @@ class FileGrabber(FlowBlockGrabber):
         logging.info("Executing File Grabber")
         path = self.SubVariables["Dir_or_File"].value
         gray = self.SubVariables["Gray"].value
-
 
         if path is None:
             return
@@ -77,11 +79,11 @@ class FileGrabber(FlowBlockGrabber):
                 image = cv2.imread(filename)
             if image.shape[0] > 0 and image.shape[1] > 0:
                 self.OutputVars["Image"].value = image
-                logging.info("Grabbed image %s" %filename)
+                logging.info("Grabbed image %s" % filename)
             else:
                 logging.warning("The image your are trying to load has a size of 0.")
         else:
-            logging.warning("Could not grab image %s; image does not appear to exist." %filename)
+            logging.warning("Could not grab image %s; image does not appear to exist." % filename)
 
 
 FlowBlockFactory.AddBlockType(FileGrabber)

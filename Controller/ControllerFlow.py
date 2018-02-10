@@ -10,10 +10,12 @@ from datetime import datetime
 
 level_execution_lock = Lock()
 
+
 class ControllerFlow(object):
     """
     Class that separates controller flowmodel functions from other controller functions
     """
+
     def __init__(self, controller: Controller, settings):
         self.__controller = controller
         self.__settings = settings
@@ -32,9 +34,9 @@ class ControllerFlow(object):
 
     def GetFlow(self) -> Flow:
         flow = self.__flowmodel.GetFlow()
-        return deepcopy( flow ) # it is not allowed to edit the flow in the model directly,
+        return deepcopy(flow)  # it is not allowed to edit the flow in the model directly,
 
-    def SetFlow(self, flow: Flow ) -> bool:
+    def SetFlow(self, flow: Flow) -> bool:
         self.__flowmodel.SetFlow(flow)
         return True
 
@@ -45,13 +47,13 @@ class ControllerFlow(object):
             # is an existing type so we can add it.
             flow = self.__flowmodel.GetFlow()
             newBlock = factory.create(blocktype)
-            flow.AddFlowBlock(newBlock,col=col, afterblock=afterblock, beforeblock=beforeblock)
+            flow.AddFlowBlock(newBlock, col=col, afterblock=afterblock, beforeblock=beforeblock)
             self.__flowmodel.SetFlow(flow)
         else:
             logging.error("Could not add block; the type of block does not exist.")
             return False
 
-    def RemoveBlock(self, block_to_remove: FlowBlock ):
+    def RemoveBlock(self, block_to_remove: FlowBlock):
         if block_to_remove:
             flow = self.__flowmodel.GetFlow()
             flow.RemoveBlock(block_to_remove)
@@ -68,10 +70,9 @@ class ControllerFlow(object):
         splitted_name = name.split("_")
         if len(splitted_name) > 1:
             if splitted_name[-1].isdigit():
-                name = "_".join(splitted_name[0:len(splitted_name)-1])
+                name = "_".join(splitted_name[0:len(splitted_name) - 1])
                 index = int(splitted_name[-1])
         return name, index
-
 
     def change_name_of_block(self, block: FlowBlock, new_name: str):
         if block:
@@ -79,7 +80,7 @@ class ControllerFlow(object):
 
             while flow.get_block_by_name(new_name) is not None:
                 name, index = self._get_name_and_index(new_name)
-                new_name = name + "_" + str(index+1)
+                new_name = name + "_" + str(index + 1)
 
             block_in_flow = flow.get_block_by_name(block.name)
             block_in_flow.name = new_name
@@ -91,7 +92,8 @@ class ControllerFlow(object):
         block = flow.get_block_by_name(blockname)
         if block is None:
             return None
-        new_value = block.set_variable_value_by_id(id, value=value, is_reference=is_reference) #if outside of min max value might change
+        new_value = block.set_variable_value_by_id(id, value=value,
+                                                   is_reference=is_reference)  # if outside of min max value might change
         self.__flowmodel.SetFlow(flow)
         return new_value
 
@@ -103,8 +105,8 @@ class ControllerFlow(object):
                 self.__results = results
 
             def execute(self):
-                #TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
-                #TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
+                # TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
+                # TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
                 global level_execution_lock
                 level_execution_lock.acquire()
                 try:
@@ -115,13 +117,11 @@ class ControllerFlow(object):
                 finally:
                     level_execution_lock.release()
                     total_time = datetime.now() - start_time
-                    logging.info("Single flow run took %2.f ms" % (total_time.total_seconds()*1000.0))
-
+                    logging.info("Single flow run took %2.f ms" % (total_time.total_seconds() * 1000.0))
 
         task_step = task("ExecuteFlowOnce", self.__flowmodel.execute_flow_once, self.__controller.results)
 
         self.__controller.threadpool.add_task(task_step)
-
 
     def execute_next_step_level(self):
         class task(ThreadPool.Task):
@@ -131,8 +131,8 @@ class ControllerFlow(object):
                 self.__results = results
 
             def execute(self):
-                #TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
-                #TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
+                # TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
+                # TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
                 global level_execution_lock
                 level_execution_lock.acquire()
                 try:

@@ -10,6 +10,7 @@ from Controller import ControllerResults
 class HeatMap(FlowBlockFilter):
     """Class that implements image normalization"""
     type_name = "HeatMap"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {
@@ -19,13 +20,12 @@ class HeatMap(FlowBlockFilter):
     def execute(self, results_controller: ControllerResults):
         logging.info("Executing %s" % self.name)
 
-
         image = self.get_subvariable_or_referencedvariable("Image", results_controller).value
         if image is None:
             logging.warning("input image of %s is empty." % self.name)
             return
 
-        res = np.zeros(shape=(image.shape[0],image.shape[1],3),dtype=np.uint8)
+        res = np.zeros(shape=(image.shape[0], image.shape[1], 3), dtype=np.uint8)
         cv2.applyColorMap(image, cv2.COLORMAP_JET, res)
 
         if res.shape[0] > 0 and res.shape[1] > 0:

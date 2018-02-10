@@ -1,5 +1,7 @@
-from tkinter import *   # from x import * is bad practice
-#from tkinter.ttk import *
+from tkinter import *  # from x import * is bad practice
+
+
+# from tkinter.ttk import *
 
 # http://tkinter.unpythonic.net/wiki/VerticalScrolledFrame
 
@@ -9,15 +11,16 @@ class VerticalScrolledFrame(Frame):
     * Construct and pack/place/grid normally
     * This frame only allows vertical scrolling
     """
-    def __init__(self, parent,*args, **kw):
-        Frame.__init__(self, parent, *args, **kw)            
+
+    def __init__(self, parent, *args, **kw):
+        Frame.__init__(self, parent, *args, **kw)
 
         # create a canvas object and a vertical scrollbar for scrolling it
         vscrollbar = Scrollbar(self, orient=VERTICAL)
-        #vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
+        # vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
         canvas = Canvas(self, bd=0, highlightthickness=0,
                         yscrollcommand=vscrollbar.set)
-        #canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        # canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
 
 
 
@@ -26,12 +29,12 @@ class VerticalScrolledFrame(Frame):
         # hscrollbar.pack(fill=X, side=BOTTOM, expand=FALSE)
         # canvas = Canvas(self, bd=0, highlightthickness=0,
         #                 xscrollcommand=hscrollbar.set)
-        #canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
-        canvas.grid(row=0, column=0, sticky=NSEW )
-        vscrollbar.grid(column=1,row=0,sticky=NS)
+        # canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        canvas.grid(row=0, column=0, sticky=NSEW)
+        vscrollbar.grid(column=1, row=0, sticky=NS)
 
         vscrollbar.config(command=canvas.yview)
-        #hscrollbar.config(command=canvas.xview)
+        # hscrollbar.config(command=canvas.xview)
 
         # reset the view
         canvas.xview_moveto(0)
@@ -51,10 +54,12 @@ class VerticalScrolledFrame(Frame):
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # update the canvas's width to fit the inner frame
                 canvas.config(width=interior.winfo_reqwidth())
+
         interior.bind('<Configure>', _configure_interior)
 
         def _configure_canvas(event):
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 # update the inner frame's width to fill the canvas
                 canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+
         canvas.bind('<Configure>', _configure_canvas)

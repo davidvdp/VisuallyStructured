@@ -4,6 +4,7 @@ import Controller
 from FlowBlocks.FlowBlocks import FlowBlock
 from typing import List
 
+
 class ControllerResults(object):
     def __init__(self, controller: Controller, settings):
         self.__controller = Controller

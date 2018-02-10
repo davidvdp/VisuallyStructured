@@ -10,14 +10,15 @@ from Controller import ControllerResults
 class Sobel(FlowBlockFilter):
     """Class that implements a sobel kernel filter"""
     type_name = "Sobel"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
-        self.SubVariables.update( {
-            "Kernel_Size": IntVar(5,min=1),
+        self.SubVariables.update({
+            "Kernel_Size": IntVar(5, min=1),
             "dx": BoolVar(True),
             "dy": BoolVar(False),
             "abs": BoolVar(False)
-        } )
+        })
 
     def execute(self, results_controller: ControllerResults):
         logging.info("Executing %s" % self.name)
@@ -29,17 +30,17 @@ class Sobel(FlowBlockFilter):
 
         image = self.get_subvariable_or_referencedvariable("Image", results_controller).value
         if image is None:
-            logging.warning("input image of %s is empty." %self.name)
+            logging.warning("input image of %s is empty." % self.name)
             return
 
-        if dx==False and dy==False:
-            logging.warning("dx and dy for %s are both false." %self.name)
+        if dx == False and dy == False:
+            logging.warning("dx and dy for %s are both false." % self.name)
             self.OutputVars["Image"].value = image
             return
 
-        #check if grayscaled image
+        # check if grayscaled image
         if len(image.shape) != 2:
-            image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         if dx:
             resdx = cv2.Sobel(image, ddepth=cv2.CV_16S, dx=1, dy=0, ksize=ker_size)
@@ -55,13 +56,12 @@ class Sobel(FlowBlockFilter):
         if abs:
             res = np.abs(res)
         res = res - np.min(res)
-        res = np.array( res / np.max(res) * 255, dtype=np.uint8 )
+        res = np.array(res / np.max(res) * 255, dtype=np.uint8)
 
         if res.shape[0] > 0 and res.shape[1] > 0:
             self.OutputVars["Image"].value = res
         else:
             logging.warning("The image your are trying to load has a size of 0.")
-
 
 
 FlowBlockFactory.AddBlockType(Sobel)

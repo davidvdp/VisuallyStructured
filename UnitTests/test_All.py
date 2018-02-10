@@ -11,7 +11,7 @@ if __name__ == '__main__':
         loader.loadTestsFromTestCase(TestVar),
         loader.loadTestsFromTestCase(TestFileGrabber),
         loader.loadTestsFromTestCase(TestThreadPool),
-        ))
+    ))
 
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)

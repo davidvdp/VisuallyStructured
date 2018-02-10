@@ -9,6 +9,7 @@ from Controller import ControllerResults
 class Debayer(FlowBlockFilter):
     """Class that implements image debayer"""
     type_name = "Debayer"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {

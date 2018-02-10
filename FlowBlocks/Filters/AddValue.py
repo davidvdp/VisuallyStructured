@@ -3,9 +3,11 @@ from ..FlowBlocks import FlowBlockFactory
 from ..Variables import *
 from Controller import ControllerResults
 
+
 class AddValue(FlowBlockFilter):
     """Class that implements adding a value"""
     type_name = "AddValue"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {

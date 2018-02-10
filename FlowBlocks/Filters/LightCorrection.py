@@ -10,6 +10,7 @@ from Controller import ControllerResults
 class LightCorrection(FlowBlockFilter):
     """Class that implements LightCorrection"""
     type_name = "LightCorrection"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {
@@ -26,8 +27,8 @@ class LightCorrection(FlowBlockFilter):
 
         self.__cor_mat_file = image_file
         if os.path.isfile(image_file):
-            image = cv2.imread(image_file,0)
-            self.__cor_mat = np.array(image, dtype=np.float16)-128.0
+            image = cv2.imread(image_file, 0)
+            self.__cor_mat = np.array(image, dtype=np.float16) - 128.0
 
         return self.__cor_mat
 
@@ -45,7 +46,6 @@ class LightCorrection(FlowBlockFilter):
 
         if cor_mat.shape[0] is not image.shape[0] or cor_mat.shape[1] is not image.shape[1]:
             logging.error("Correction matrix and image do not match in dimensions for block %s" % self.name)
-
 
         if len(image.shape) > 2:
             res = image.copy()

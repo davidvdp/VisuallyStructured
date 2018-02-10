@@ -9,6 +9,7 @@ from Controller import ControllerResults
 class Normalize(FlowBlockFilter):
     """Class that implements image normalization"""
     type_name = "Normalize"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {

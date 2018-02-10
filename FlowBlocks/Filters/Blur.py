@@ -9,11 +9,12 @@ from Controller import ControllerResults
 class Blur(FlowBlockFilter):
     """Class that implements a sobel kernel filter"""
     type_name = "Blur"
+
     def __init__(self, name=type_name):
         super().__init__(name=name)
         self.SubVariables = {
             "Image": ImageVar(),
-            "Kernel_Size": IntPointVar(x=IntVar(min=3),y=IntVar(min=3))
+            "Kernel_Size": IntPointVar(x=IntVar(min=3), y=IntVar(min=3))
         }
 
     def execute(self, results_controller: ControllerResults):
@@ -26,7 +27,7 @@ class Blur(FlowBlockFilter):
             logging.warning("input image of %s is empty." % self.name)
             return
 
-        res = cv2.blur(image, (ker_size_x,ker_size_y))
+        res = cv2.blur(image, (ker_size_x, ker_size_y))
 
         if res.shape[0] > 0 and res.shape[1] > 0:
             self.OutputVars["Image"].value = res

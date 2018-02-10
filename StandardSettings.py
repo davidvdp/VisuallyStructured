@@ -2,9 +2,12 @@ import os
 from yaml import load, dump
 
 import logging
+
 """
 Contains the standard settings which are saved to a yaml on first start, after that the yaml file is loaded.
 """
+
+
 class Settings(object):
     def __init__(self):
         self.__settings_file = "settings.yaml"
@@ -64,4 +67,3 @@ class Settings(object):
     @property
     def settings_file(self):
         return self.__settings_file
-

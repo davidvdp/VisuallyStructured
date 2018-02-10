@@ -5,7 +5,7 @@ import random
 
 from ThreadPool import ThreadPool
 
-cnt_handle=0
+cnt_handle = 0
 
 
 class TaskTest(ThreadPool.Task):
@@ -17,8 +17,8 @@ class TaskTest(ThreadPool.Task):
         time.sleep(random.random() / 2)
         self.__handle(1)
 
-class TestThreadPool(unittest.TestCase):
 
+class TestThreadPool(unittest.TestCase):
     def get_worker_thread_cnt(self):
         threads = threading.enumerate()
         thread_cnt = 0
@@ -30,13 +30,11 @@ class TestThreadPool(unittest.TestCase):
     def test_initialization(self):
         threadpool_list = []
         total_cnt_expected = 0
-        for i in range(0,5):
+        for i in range(0, 5):
             total_cnt_expected += i
-            threadpool_list.append(ThreadPool(i,3,extra_debug_info=True))
+            threadpool_list.append(ThreadPool(i, 3, extra_debug_info=True))
             cnt = self.get_worker_thread_cnt()
-            self.assertEqual(cnt,total_cnt_expected)
-
-
+            self.assertEqual(cnt, total_cnt_expected)
 
     def task_handle(self, i):
         global cnt_handle
@@ -48,19 +46,18 @@ class TestThreadPool(unittest.TestCase):
         task_list = []
         total_cnt_expected = 10
         for i in range(total_cnt_expected):
-            task_list.append(TaskTest("task %s" %i, self.task_handle))
+            task_list.append(TaskTest("task %s" % i, self.task_handle))
         for task in task_list:
             thread_pool.add_task(task)
 
         time_start = time.time()
-        while(True):
-            if time.time()-time_start>1.0:
+        while (True):
+            if time.time() - time_start > 1.0:
                 break
             if cnt_handle == total_cnt_expected:
                 break
 
         self.assertEqual(cnt_handle, total_cnt_expected)
-
 
 
 if __name__ == "__main__":

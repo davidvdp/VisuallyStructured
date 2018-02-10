@@ -3,6 +3,7 @@ from .Variables import *
 __type_name = "type"
 __sub_var_name = "sub_variables"
 
+
 def get_dict_structure_for_var(var: Var):
     """
     Gets variable as a dict including all subvariables
@@ -10,12 +11,12 @@ def get_dict_structure_for_var(var: Var):
     :return: dict
     """
     if var.SubVariables is None or len(var.SubVariables) < 1:
-        return {"value":var.value, "is_reference":var.is_reference}
+        return {"value": var.value, "is_reference": var.is_reference}
     sub_vars = {}
     for key, val in var.SubVariables.items():
         sub_vars[key] = get_dict_structure_for_var(val)
     if len(sub_vars) < 1:
-        return {"value":var.value, "is_reference":var.is_reference}
+        return {"value": var.value, "is_reference": var.is_reference}
 
     return sub_vars
 
@@ -26,6 +27,7 @@ class FlowBlockFactory(object):
     AddBlockType(blocktype, name) static function
     Creation is done by fist calling GetAvailableTypes() and then pick one to call create() with
     """
+
     @staticmethod
     def AddBlockType(blocktype, name=None):
         """
@@ -55,13 +57,14 @@ class FlowBlockFactory(object):
             if (self.cnt is not 0):
                 name += "_%d" % self.cnt
 
-            block = self.classreference(name) # type: FlowBlock
+            block = self.classreference(name)  # type: FlowBlock
             if settings is not None:
                 block.set_variable_by_settings_dict(settings)
             return block
 
     class __FlowBlockFactory(object):
         '''Actual class that manages the creation of flowblock objects'''
+
         def __init__(self):
             self._classList = []
 
@@ -77,7 +80,7 @@ class FlowBlockFactory(object):
         def _AddBlockType(self, blocktype, name=None):
             if not name:
                 block = blocktype()
-                bases =  blocktype.__bases__
+                bases = blocktype.__bases__
                 if len(bases):
                     name = bases[0]().name + "." + block.name
                 else:
@@ -103,6 +106,7 @@ class FlowBlockFactory(object):
     def __getattr__(self, name):
         return getattr(self.instance, name)
 
+
 class FlowBlock(Var):
     """
     A flow block that holds the information on what block or blocks to execute next.
@@ -110,6 +114,7 @@ class FlowBlock(Var):
     update (clean_output_data will be called).
     """
     type_name = "Flow_Block"
+
     def __init__(self, name="Generic"):
         super().__init__(name)
         self._nextSteps = []
@@ -121,13 +126,11 @@ class FlowBlock(Var):
             return self.__class__.type_name
         return self.__class__.__bases__[0].type_name + "." + self.__class__.type_name
 
-
-
     def GetNextSteps(self):
         return self._nextSteps
 
     def SetNextStep(self, flowBlock, col=0):
-        while len(self._nextSteps) <= col: # is col is not 0 than fill with nones
+        while len(self._nextSteps) <= col:  # is col is not 0 than fill with nones
             self._nextSteps.append(None)
         self._nextSteps[col] = flowBlock
 
@@ -167,6 +170,7 @@ def get_dict_structure_for_block(block: FlowBlock):
 
     return result
 
+
 def get_block_from_dict_structure(name, property) -> FlowBlock:
     global __type_name
     global __sub_var_name
@@ -176,40 +180,48 @@ def get_block_from_dict_structure(name, property) -> FlowBlock:
     #   block_obj.set_variable_value_by_id(id, value)
     return block_obj
 
+
 class FlowBlockFilter(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of diffserent filters."""
     type_name = "Filter"
+
     def __init__(self, name="Filter", *args, **kwargs):
         super().__init__(name, *args, **kwargs)
         self.SubVariables.update({
             "Image": ImageVar()
-        }) # a filter always has an input
-        self.OutputVars = {"Image": ImageVar()} # and an output
+        })  # a filter always has an input
+        self.OutputVars = {"Image": ImageVar()}  # and an output
 
     def execute(self, results_controller):
         raise NotImplementedError()
 
+
 class FlowBlockMeasurement(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different measurements."""
     type_name = "Measurement"
+
     def __init__(self, name="Measurement"):
         super().__init__(name)
 
     def execute(self, results_controller):
-        logging.info("Executing %s" %self.name)
+        logging.info("Executing %s" % self.name)
+
 
 class FlowBlockCondition(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different conditions."""
     type_name = "Condition"
+
     def __init__(self, name="Condition"):
         super().__init__(name)
 
     def execute(self, results_controller):
         logging.info("Executing %s" % self.name)
 
+
 class FlowBlockGrabber(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different conditions."""
     type_name = "Grabber"
+
     def __init__(self, name="Grabber"):
         super().__init__(name)
         self.OutputVars = {"Image": ImageVar()}
@@ -220,6 +232,7 @@ class FlowBlockGrabber(FlowBlock):
     def GetResults(self):
         return self.OutputVars
 
+
 FlowBlockFactory.AddBlockType(FlowBlockCondition, "Condition")
 FlowBlockFactory.AddBlockType(FlowBlockMeasurement, "Measurement")
-#FlowBlockFactory.AddBlockType(FlowBlockFilter, "Filter")
+# FlowBlockFactory.AddBlockType(FlowBlockFilter, "Filter")
