@@ -92,7 +92,7 @@ class Var(object):
             value = settings.get('value')
             is_reference = settings.get('is_reference')
             # check if this is a stub variable
-            if value is not None and is_reference is not None:
+            if 'value' in settings and is_reference is not None: # value should exist but can be None
                 self.set_variable_value_by_id(accumulated_id, value, is_reference)
             else:
                 for key, value in settings.items():

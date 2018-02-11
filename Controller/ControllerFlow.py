@@ -3,7 +3,7 @@ import logging
 from ModelFlow import ModelFlow
 from FlowBlocks.FlowBlocks import FlowBlockFactory, FlowBlock
 from ModelFlow import Flow
-from copy import deepcopy
+from copy import deepcopy, copy
 from ThreadPool import ThreadPool
 from threading import Lock
 from datetime import datetime
@@ -34,7 +34,7 @@ class ControllerFlow(object):
 
     def GetFlow(self) -> Flow:
         flow = self.__flowmodel.GetFlow()
-        return deepcopy(flow)  # it is not allowed to edit the flow in the model directly,
+        return copy(flow)  # it is not allowed to edit the flow in the model directly,
 
     def SetFlow(self, flow: Flow) -> bool:
         self.__flowmodel.SetFlow(flow)

@@ -8,7 +8,8 @@ from Controller import Controller
 # these imports make the blocks available for the blockfactory.
 from FlowBlocks.Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCorrection, AddValue, MultiplyValue, \
     SelectChannel
-from FlowBlocks.Grabbers import File
+from FlowBlocks.Grabbers import File, picam
+from FlowBlocks import save_image
 
 
 # TODO: Create tree like structure for properties within a block
@@ -26,30 +27,42 @@ from FlowBlocks.Grabbers import File
 # TODO: Cannot insert new block in between two other blocks
 # TODO: Automatic new line for text in block
 # TODO: Feedback for saving changes for property does also popup when current block is selected again.
+# TODO: Add option to show results. No showing increases processing speed.
 
 
 def set_logging(settings):
+    print("In here 1")
     log_dir = settings.log_dir
 
     if not os.path.isdir(log_dir):
         os.makedirs(log_dir)
-
+    print("In here 1")
     # clean log dir
     files = os.listdir(log_dir)
     nr_files = len(files)
     max_files = settings.max_log_history_days
+
+    print("Nr files: %d" %(max_files))
+
     if nr_files > max_files:
         files.sort()
         for i, file in enumerate(files):
             if i >= nr_files - max_files:
                 break
-            os.remove(log_dir + "\\" + file)
+            os.remove(os.path.join( log_dir, file) )
 
     time = strftime("%Y%m%d", localtime())
-    logging.basicConfig(filename="%s\%s_log.csv" % (log_dir, time), level=logging.INFO,
+
+    log_file = os.path.join(log_dir, "%s_log.csv" % time)
+    print(log_file)
+
+
+
+    logging.basicConfig(filename=log_file, level=logging.INFO,
                         format='%(asctime)s;%(levelname)s;%(message)s')
     log_formatter = logging.Formatter('%(asctime)s\t[%(levelname)s]\t%(message)s')
     root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(log_formatter)
     root_logger.addHandler(console_handler)

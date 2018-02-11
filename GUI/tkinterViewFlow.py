@@ -2,7 +2,7 @@ import logging
 from tkinter import *
 from tkinter.font import Font
 from GUI.GUIInterface import *
-from FlowBlocks import *
+from FlowBlocks import FlowBlockFactory
 from SubjectObserver import Observer
 import inspect
 
