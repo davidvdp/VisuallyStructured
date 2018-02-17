@@ -26,6 +26,7 @@ class ControllerFlow(object):
 
         flow = self.__flowmodel.GetFlow()
         factory = FlowBlockFactory()
+        self.__stop_requested = False
 
     def attach_view(self, view):
         logging.info("Subscribing flow view to flow model...")
@@ -96,6 +97,46 @@ class ControllerFlow(object):
                                                    is_reference=is_reference)  # if outside of min max value might change
         self.__flowmodel.SetFlow(flow)
         return new_value
+
+    def run_flow_continous(self):
+        class task(ThreadPool.Task):
+            def __init__(self, name, function_handle_execute, results, stop_handle):
+                super().__init__(name)
+                self.__function_handle_execute = function_handle_execute
+
+                self.__results = results
+                self.__stop_handle = stop_handle
+
+            def execute(self):
+                # TODO: Execution is now purely serial since every step execution is waiting on the last to finish.
+                # TODO: When steps are parallel in the flow, they ought to be executed in parallel as well.
+                global level_execution_lock
+                while not self.__stop_handle():
+                    level_execution_lock.acquire()
+                    try:
+                        start_time = datetime.now()
+                        blocks_executed = []
+                        blocks_executed = self.__function_handle_execute(self.__results)
+                        self.__results.add_blocks_to_result(blocks_executed)
+                    finally:
+                        level_execution_lock.release()
+                        total_time = datetime.now() - start_time
+                        logging.info("Single flow run took %2.f ms" % (total_time.total_seconds() * 1000.0))
+
+
+        task_step = task("ExecuteFlowOnce", self.__flowmodel.execute_flow_once, self.__controller.results,
+                         self.stop_requested)
+        self.__start()
+        self.__controller.threadpool.add_task(task_step)
+
+    def stop(self):
+        self.__stop_requested = True
+
+    def __start(self):
+        self.__stop_requested = False
+
+    def stop_requested(self):
+        return self.__stop_requested
 
     def run_flow_once(self):
         class task(ThreadPool.Task):

@@ -128,7 +128,7 @@ class ViewProperties(Observer, View):
         if self.labelFrameInput:
             self.labelFrameInput.destroy()
 
-        var_ids_in = block.GetVariableIDs()
+        var_ids_in = block.get_variable_ids()
         if len(var_ids_in) > 0:
             # there are variables available for this block
             # first show name

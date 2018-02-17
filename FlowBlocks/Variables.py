@@ -68,16 +68,23 @@ class Var(object):
             return None
         return obj.Limits
 
-    def GetVariableIDs(self, name=None):
+    def get_variable_ids(self, var_name=None):
+        """
+        Get the id of all variable. Do not use var_name, it is only used for recursion.
+        :param var_name: Do not use.
+        :return: variable id.
+        """
         if self.Stub():
-            raise NotImplementedError("Stub variable types should implement their own GetVariableIDs(name) method")
-        if name is None:
-            name = self.name
+            raise NotImplementedError(
+                "Stub variable types should implement their own GetVariableIDs(name) method. %s of type %s didn't." % (
+                self.name, str(type(self))))
+        if var_name is None:
+            var_name = self.name
         varids = dict()
         for key, val in self.SubVariables.items():
-            subvarids = val.GetVariableIDs(key)
+            subvarids = val.get_variable_ids(key)
             for keysub, valsub in subvarids.items():
-                varids[name + self.__delimiter + keysub] = valsub
+                varids[var_name + self.__delimiter + keysub] = valsub
         return varids
 
     def set_variable_by_settings_dict(self, settings):
@@ -92,7 +99,7 @@ class Var(object):
             value = settings.get('value')
             is_reference = settings.get('is_reference')
             # check if this is a stub variable
-            if 'value' in settings and is_reference is not None: # value should exist but can be None
+            if 'value' in settings and is_reference is not None:  # value should exist but can be None
                 self.set_variable_value_by_id(accumulated_id, value, is_reference)
             else:
                 for key, value in settings.items():
@@ -115,6 +122,9 @@ class Var(object):
             obj = self
         else:
             obj = self.get_variable_by_id(id)
+
+        if obj is None:
+            return None
 
         obj.is_reference = is_reference
         obj.value = value
@@ -168,7 +178,7 @@ class Var(object):
         :return:
         """
         vars = dict()
-        ids = self.GetVariableIDs()
+        ids = self.get_variable_ids()
         for key, var in ids.items():
             if type in key:
                 obj = self.get_variable_by_id(key.split("type")[0] + type)
@@ -203,7 +213,7 @@ class StubVar(Var):
         for i in range(level): tabs += "\t"
         return "\n" + tabs + self.name + ": " + str(self.value)
 
-    def GetVariableIDs(self, name=None):
+    def get_variable_ids(self, name=None):
         if name:
             varids = {name + "." + self.__type: self.value}
         else:
@@ -450,7 +460,7 @@ def main():
     unpickeldline = pickle.load(open(filename, "rb"))
 
     # Varid's
-    varids = unpickeldline.GetVariableIDs()
+    varids = unpickeldline.get_variable_ids()
     print(varids)
 
 

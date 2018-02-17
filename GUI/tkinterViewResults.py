@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 from FlowBlocks.Variables import *
 from SubjectObserver import Observer
+from queue import Queue, Empty
 
 
 class ImageTab(Frame):
@@ -113,14 +114,17 @@ class ImageTab(Frame):
             if scale < 0.00001:
                 return
 
-        newSize = [0.0, 0.0]
-        newSize[0] = self.npimage.shape[1] * self._scale  # width
-        newSize[1] = self.npimage.shape[0] * self._scale  # height
-        if newSize[0] < 1:
-            return
-        if newSize[1] < 1:
-            return
-        rescaledimages = cv2.resize(self.npimage, (int(newSize[0]), int(newSize[1])))
+        if abs(self._scale - 1) > 0.01:
+            newSize = [0.0, 0.0]
+            newSize[0] = self.npimage.shape[1] * self._scale  # width
+            newSize[1] = self.npimage.shape[0] * self._scale  # height
+            if newSize[0] < 1:
+                return
+            if newSize[1] < 1:
+                return
+            rescaledimages = cv2.resize(self.npimage, (int(newSize[0]), int(newSize[1])))
+        else:
+            rescaledimages = self.npimage
         height = rescaledimages.shape[0]
         width = rescaledimages.shape[1]
         self._canvas.config(scrollregion=(0, 0, width, height))
@@ -161,8 +165,13 @@ class ViewResults(Observer, View):
 
         # TODO: Work around below should be fixed; need to create a tab first and delete it, or background is old image in constant scale.
         name_init = "initialization_image"
-        self.AddTab(np.zeros((1, 1, 3), dtype=np.uint8), name_init)
+        self.add_to_tab(np.zeros((1, 1, 3), dtype=np.uint8), name_init)
         self.RemoveTab(name_init)
+
+        self.__temp_data_queue = Queue() # used for update function to store data in
+
+        # add custom event handler to let updates be taken care of in tk main loop
+        parent.root.bind("<<ViewResults.Update>>", self.__update)
 
     def RemoveTab(self, name):
         for tab in self._tabs:
@@ -170,20 +179,20 @@ class ViewResults(Observer, View):
                 tab.destroy()
                 self._tabs.remove(tab)
 
-    def AddTab(self, npimage, name):
-
+    def add_to_tab(self, npimage, name):
         if npimage is None:
             return
 
+        # check if one exists; if so use that
         for tab in self._tabs:
             if tab.GetName() == name:
                 tab.SetImage(npimage=npimage)
                 return
-
+        #create new tab one
         tab = ImageTab(name=name, notebook=self._notebook)
-
-        tab.SetImage(npimage=npimage)
         self._tabs.append(tab)
+        self.add_to_tab(npimage=npimage, name=name)
+
 
     def __findAllImagesAndShow(self, flowblock_name):
         if self._results is None:
@@ -192,10 +201,17 @@ class ViewResults(Observer, View):
         for key, var in imageVars.items():
             name = key.split(".")[0]
             if name == flowblock_name:
-                self.AddTab(var.value, name)
+                self.add_to_tab(var.value, name)
 
-    def Update(self, *args, **kwargs):
+    def __update(self, event):
         self._results = self.get_controller().results.get_results_for_block()
-        flowblock_name = kwargs.get("flowblock_name", None)
+        try:
+            flowblock_name = self.__temp_data_queue.get_nowait()["flowblock_name"]
+        except Empty:
+            flowblock_name = None
         if not flowblock_name is None:
             self.__findAllImagesAndShow(flowblock_name)
+
+    def Update(self, *args, **kwargs):
+        self.__temp_data_queue.put_nowait({"flowblock_name": kwargs.get("flowblock_name", None)})
+        self._parent.root.event_generate("<<ViewResults.Update>>")

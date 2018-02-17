@@ -15,35 +15,40 @@ class ViewControl(Observer, View):
         self.control_image_pause = PhotoImage(file=os.path.join(self.__dir_path, "icons/control_pause.png"))
         self.control_image_single_run = PhotoImage(file=os.path.join(self.__dir_path, "icons/control_single_run.png"))
         self.control_image_single_step = PhotoImage(file=os.path.join(self.__dir_path, "icons/control_single_step.png"))
+        self.control_image_continuous = PhotoImage(file=os.path.join(self.__dir_path, "icons/control_loop.png"))
 
         self._buttonPause = Button(self._frame,
                                    # text="Pause", fg="red",
-                                   command=self.FlowPause,
+                                   command=self.flow_pause,
                                    image=self.control_image_pause)
         self._buttonPause.pack(side=LEFT)
 
         self._buttonNextStep = Button(self._frame,
                                       # text="Next Step",
-                                      command=self.FlowNextStep,
+                                      command=self.flow_next_step,
                                       image=self.control_image_single_step)
         self._buttonNextStep.pack(side=LEFT)
 
         self._buttonStart = Button(self._frame,
                                    # text="Start", fg="green",
-                                   command=self.FlowStart,
+                                   command=self.flow_start,
                                    image=self.control_image_single_run)
         self._buttonStart.pack(side=LEFT)
 
-    def FlowStart(self):
+        self._buttonContinuous = Button(self._frame,
+                                        # text="Next Step",
+                                      command=self.flow_continuous,
+                                        image=self.control_image_continuous)
+        self._buttonContinuous.pack(side=LEFT)
+
+    def flow_start(self):
         self._parent.controller.flow.run_flow_once()
-        # logging.warning("Starting flow has not been implemented yet.")
-        # raise NotImplementedError("Starting flow has not been implemented yet.")
 
-    def FlowPause(self):
-        logging.warning("Pausing flow has not been implemented yet.")
-        raise NotImplementedError("Pausing flow has not been implemented yet.")
+    def flow_pause(self):
+        self._parent.controller.flow.stop()
 
-    def FlowNextStep(self):
+    def flow_next_step(self):
         self._parent.controller.flow.execute_next_step_level()
-        # logging.warning("Steppingg though flow has not been implemented yet.")
-        # raise NotImplementedError("Steppingg though flow has not been implemented yet.")
+
+    def flow_continuous(self):
+        self._parent.controller.flow.run_flow_continous()

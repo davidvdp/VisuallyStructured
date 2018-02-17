@@ -17,8 +17,7 @@ class Settings(object):
                 "log_dir": "Logs",
                 "last_selected_dir": "test",
                 "last_flow": "flow.current",
-                "max_log_history_days": 5,
-                "window_geometry": None
+                "max_log_history_days": 5
             }
             self.save_setting()
 
@@ -42,14 +41,6 @@ class Settings(object):
     def max_log_history_days(self) -> str:
         return self.__settings_values["max_log_history_days"]
 
-    @property
-    def window_geometry(self):
-        return self.__settings_values["window_geometry"]
-
-    @window_geometry.setter
-    def window_geometry(self, window_geometry):
-        self.__settings_values["window_geometry"] = window_geometry
-        self.save_setting()
 
     def save_setting(self):
         with open(self.__settings_file, 'w') as stream:

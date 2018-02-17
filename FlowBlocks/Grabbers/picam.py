@@ -4,7 +4,7 @@ import cv2
 from threading import Thread
 from queue import Queue
 
-from ..Variables import BoolVar
+from FlowBlocks.Variables import BoolVar
 from FlowBlocks import FlowBlockGrabber
 from FlowBlocks import FlowBlockFactory
 

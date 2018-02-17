@@ -1,13 +1,9 @@
-from tkinter import *
-from tkinter.filedialog import askopenfilename
 from GUI.tkinterGUIHelper import *
 from GUI.tkinterViewMenu import ViewMenu
 from GUI.tkinterViewFlow import ViewFlow
 from GUI.tkinterViewControl import ViewControl
 from GUI.tkinterViewResults import ViewResults
 from GUI.tkinterViewProperties import ViewProperties
-import logging
-from FlowBlocks import *
 
 
 class GUI(object):
@@ -30,7 +26,7 @@ class GUI(object):
         self.root.rowconfigure(1, weight=1)
         self.root.columnconfigure(1, weight=1)
 
-        self.root.geometry(controller.settings.window_geometry)
+        self.root.geometry("640x640")
 
         self.width = None
         self.height = None
@@ -38,13 +34,5 @@ class GUI(object):
     def Start(self):
         self.viewmenu.Start()
         self.viewflow.Start()
-        self.root.bind("<Configure>", self.configure)  # handle resize events
-        self.root.bind("<F11>", self.configure)  # handle resize events
         self.root.mainloop()
 
-    def set_window_size(self, height=None, width=None):
-        pass
-
-    def configure(self, event):
-        # logging.info("Window geometry changed to: %s" %self.root.geometry())
-        self.controller.SetWindowSize(self.root.geometry())

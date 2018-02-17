@@ -1,16 +1,16 @@
 import logging
-from time import localtime, strftime
 import os
+from time import localtime, strftime
 
-from StandardSettings import Settings
 from Controller import Controller
+from StandardSettings import Settings
+
 
 # these imports make the blocks available for the blockfactory.
 from FlowBlocks.Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCorrection, AddValue, MultiplyValue, \
     SelectChannel
 from FlowBlocks.Grabbers import File, picam
-from FlowBlocks import save_image
-
+from FlowBlocks import save_image, lidar_lite_v2
 
 # TODO: Create tree like structure for properties within a block
 # TODO: Use icon to distinguish block types from one another
@@ -28,6 +28,7 @@ from FlowBlocks import save_image
 # TODO: Automatic new line for text in block
 # TODO: Feedback for saving changes for property does also popup when current block is selected again.
 # TODO: Add option to show results. No showing increases processing speed.
+# TODO: Fix picam grabber issue; grabber thread is not properly exited.
 
 
 def set_logging(settings):
@@ -58,11 +59,11 @@ def set_logging(settings):
 
 
 
-    logging.basicConfig(filename=log_file, level=logging.INFO,
+    logging.basicConfig(filename=log_file, level=logging.DEBUG,
                         format='%(asctime)s;%(levelname)s;%(message)s')
     log_formatter = logging.Formatter('%(asctime)s\t[%(levelname)s]\t%(message)s')
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(logging.DEBUG)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(log_formatter)
     root_logger.addHandler(console_handler)

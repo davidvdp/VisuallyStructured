@@ -6,6 +6,7 @@ from threading import Lock
 from SubjectObserver import Subject
 from Controller import ControllerResults
 from FlowBlocks.FlowBlocks import get_dict_structure_for_block, get_block_from_dict_structure
+from time import time
 
 level_execution_lock = Lock()
 
@@ -42,6 +43,11 @@ class Flow(object):
 
         # get all blocks and extract data from them
         block_names = self.get_list_of_block_names()
+
+        # save execution order
+        order = [block_name for block_name in block_names]
+        yaml_data["order"] = order
+
         for block_name in block_names:
             block = self.get_block_by_name(block_name)
             yaml_data.update(get_dict_structure_for_block(block))
@@ -70,9 +76,17 @@ class Flow(object):
 
             # remove old blocks
             self.clear()
+            order = yaml_data.get("order", None)
+            if order is None:
+                logging.error("Source yaml does not contain an 'order' record.")
+                return
 
-            for block, property in yaml_data.items():
-                block_obj = get_block_from_dict_structure(block, property)
+            for block_name in order:
+                properties = yaml_data.get(block_name, None)
+                if properties is None:
+                    logging.error("Could not find block %s in YAML even though it is specified in the 'order' record.")
+                    continue
+                block_obj = get_block_from_dict_structure(block_name, properties)
                 self.AddFlowBlock(block_obj)
 
     def GetStartBlock(self):
@@ -149,7 +163,7 @@ class Flow(object):
         return names
 
     def get_list_of_block_names(self):
-        return self.__getListOfBlockNames(self.__startBlock)
+        return self.__getListOfBlockNames(self.__startBlock)[::-1]
 
     def get_block_by_name(self, name):
         return self.__getBlockByName(name, self.__startBlock)
@@ -179,10 +193,16 @@ class Flow(object):
         not_started_yet = True
 
         blocks_executed = []
+        execution_times = []
 
         while not self.__startBlock in self.next_blocks_to_execute or not_started_yet:
             not_started_yet = False
-            blocks_executed.extend(self.execute_step_by_step(controller_results=controller_results))
+            blocks_executed_new, execution_times_new = self.execute_step_by_step(controller_results=controller_results)
+            blocks_executed.extend(blocks_executed_new)
+            execution_times.extend(execution_times_new)
+
+        for block, time in zip(blocks_executed, execution_times):
+            logging.debug("Block %s took %.2f miliseconds to execute" % (block.name, time*1000))
 
         return blocks_executed
 
@@ -196,9 +216,12 @@ class Flow(object):
 
         nextBlocks = []
         blocksExecuted = []
+        execution_times = []
         for block in self.__nextBlocksToBeExecuted:
             if block is None: block = self.GetStartBlock()
+            start_time = time()
             block.execute(controller_results)
+            execution_times.append(time() - start_time)
             blocksExecuted.append(block)
             nextBlocks = nextBlocks + block.GetNextSteps()
 
@@ -209,7 +232,7 @@ class Flow(object):
 
         controller_results.add_blocks_to_result(blocksExecuted)
 
-        return blocksExecuted
+        return blocksExecuted, execution_times
 
 
 class ModelFlow(Subject):

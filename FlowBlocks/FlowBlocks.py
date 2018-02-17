@@ -147,6 +147,8 @@ class FlowBlock(Var):
             for key, value in self.OutputVars.items():
                 value.__init__()
 
+    def GetResults(self):
+        return self.OutputVars
 
 def get_dict_structure_for_block(block: FlowBlock):
     """
@@ -229,10 +231,5 @@ class FlowBlockGrabber(FlowBlock):
     def execute(self, results_controller):
         logging.info("Executing %s" % self.name)
 
-    def GetResults(self):
-        return self.OutputVars
-
-
 FlowBlockFactory.AddBlockType(FlowBlockCondition, "Condition")
 FlowBlockFactory.AddBlockType(FlowBlockMeasurement, "Measurement")
-# FlowBlockFactory.AddBlockType(FlowBlockFilter, "Filter")

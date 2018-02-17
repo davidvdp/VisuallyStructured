@@ -32,9 +32,3 @@ class Controller(object):
 
     def OpenPropertiesWindowsFor(self, block):
         self._view.viewproperties.load_properties(block)
-
-    def SetWindowSize(self, geometry):
-        self.settings.window_geometry = geometry
-
-    def GetWindowSize(self):
-        return self.settings.window_size

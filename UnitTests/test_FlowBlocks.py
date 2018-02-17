@@ -13,7 +13,7 @@ class TestFlowBlocks(unittest.TestCase):
     def test_sobel_creation(self):
         sobel = FlowBlockFactory().create("Filter.Sobel")
         self.assertIsInstance(sobel, Sobel)
-        ids = sobel.GetVariableIDs()
+        ids = sobel.get_variable_ids()
         ids_expected = {
             'Sobel.Image.Image': None,
             'Sobel.Kernel_Size.Int': 5,

@@ -5,7 +5,7 @@ from Variables import *
 class TestVar(unittest.TestCase):
     def test_linevar(self):
         lineVar = LineVar()
-        structuredPrint = lineVar.GetVariableIDs()
+        structuredPrint = lineVar.get_variable_ids()
         expected = {'Line.start.x.Float': 0.0, 'Line.start.y.Float': 0.0, 'Line.end.x.Float': 0.0,
                     'Line.end.y.Float': 0.0}
         self.assertEqual(structuredPrint, expected)
@@ -15,7 +15,7 @@ class TestVar(unittest.TestCase):
         filename = "testDump.vsf"
         lineVar.Save(filename)
         loadedlineVar = Var.Load(filename)
-        self.assertEqual(lineVar.GetVariableIDs(), loadedlineVar.GetVariableIDs())
+        self.assertEqual(lineVar.get_variable_ids(), loadedlineVar.get_variable_ids())
 
     def test_minmax_guard_int(self):
         intVar = IntVar(intvalue=-2, min=1, max=2)

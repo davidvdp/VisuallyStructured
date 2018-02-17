@@ -211,12 +211,8 @@ class FlowActionBlockGUI(FlowBlockGUI):
 
     def OnLeftClick(self, event):
         '''This loads the parameters of the block in the properties window'''
-        try:
-            self._parent.get_controller().OpenPropertiesWindowsFor(self._flowBlockObject)
-        except:
-            if (__debug__):
-                raise sys.exc_info()[0](sys.exc_info()[1])
-            logging.error("Unexpected error: %s; " % (sys.exc_info()[0], sys.exc_info()[1]))
+        self._parent.get_controller().OpenPropertiesWindowsFor(self._flowBlockObject)
+
 
 
 class FlowAddBlockGUI(FlowBlockGUI):
