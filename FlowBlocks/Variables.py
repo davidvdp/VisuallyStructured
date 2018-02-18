@@ -27,6 +27,12 @@ class Var(object):
         self.flowidreference = None
         self.is_reference = False
 
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        pass
+
     @property
     def name(self):
         return self.__name

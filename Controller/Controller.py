@@ -28,6 +28,8 @@ class Controller(object):
     def StartGUI(self):
         logging.info("Starting GUI...")
         self._view.Start()
+        # make sure all blocks are correctly close (some blocks have threads running.)
+        self.flow.close()
         logging.info("GUI closed.")
 
     def OpenPropertiesWindowsFor(self, block):

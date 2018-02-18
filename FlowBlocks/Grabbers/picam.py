@@ -33,7 +33,7 @@ if picam_imports_found:
             self.__thread_run = False
             self.__thread = Thread(target=self.__start_capture_thread, args=[self.__image_buffer])
 
-        def __del__(self):
+        def close(self):
             logging.info("Stopping picam capture thread.")
             print("Stopping picam capture thread.")
             self.__thread_run = False

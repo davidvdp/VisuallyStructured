@@ -29,6 +29,7 @@ from FlowBlocks import save_image, lidar_lite_v2
 # TODO: Feedback for saving changes for property does also popup when current block is selected again.
 # TODO: Add option to show results. No showing increases processing speed.
 # TODO: Fix picam grabber issue; grabber thread is not properly exited.
+# TODO: Add help property per variable to show in GUI.
 
 
 def set_logging(settings):

@@ -234,6 +234,15 @@ class Flow(object):
 
         return blocksExecuted, execution_times
 
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        block_names = self.get_list_of_block_names()
+        for block_name in block_names:
+            block = self.get_block_by_name(block_name)
+            block.close()
+
 
 class ModelFlow(Subject):
     """This holds the actual flow and is able to pass it to a subscriber when needed."""
@@ -274,3 +283,9 @@ class ModelFlow(Subject):
 
     def get_next_block_to_execute(self):
         return self._flow.next_blocks_to_execute
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        self._flow.close()

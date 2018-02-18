@@ -195,3 +195,10 @@ class ControllerFlow(object):
 
     def load_flow_from_file(self, filename: str):
         self.__flowmodel.load_flow_from_file(filename)
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        self.__flowmodel.close()
+
