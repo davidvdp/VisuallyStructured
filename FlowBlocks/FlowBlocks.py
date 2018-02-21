@@ -106,8 +106,17 @@ class FlowBlockFactory(object):
     def __getattr__(self, name):
         return getattr(self.instance, name)
 
+'''
+Flow Block meta makes sure all classes that inherit from the FlowBlock class have an execute function.
+'''
+class FlowBlockMeta(type):
+    def __new__(cls, name, bases, body):
+        if not 'execute' in body:
+            raise TypeError("Bad user class; class does not have an execute().")
+        return super().__new__(cls, name, bases, body)
 
-class FlowBlock(Var):
+
+class FlowBlock(Var,metaclass=FlowBlockMeta):
     """
     A flow block that holds the information on what block or blocks to execute next.
     OutputVars is a temporary storage for results of measurements and will be cleared by the controller by a result
@@ -143,7 +152,7 @@ class FlowBlock(Var):
         :param results_controller:
         :return:
         """
-        raise NotImplementedError()
+        logging.info("Executing %s" % self.name)
 
     def clean_output_data(self):
         if self.OutputVars is not None:

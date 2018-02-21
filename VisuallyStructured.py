@@ -11,6 +11,7 @@ from FlowBlocks.Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCo
     SelectChannel
 from FlowBlocks.Grabbers import File, picam, webcam
 from FlowBlocks import save_image, lidar_lite_v2, data_logger
+from FlowBlocks.Detectors import find_circles
 
 # TODO: Create tree like structure for properties within a block
 # TODO: Use icon to distinguish block types from one another

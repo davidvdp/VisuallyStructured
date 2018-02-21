@@ -22,13 +22,19 @@ class ModelResults(Subject):
         def AddToResult(self, key, value):
             self._results[key] = value
 
-        def FindAllOfType(self, type):
+        def FindAllOfType(self, var_type):
             result = dict()
             for keyflowblock, valflowblock in self._results.items():
                 for key, val in valflowblock.items():
-                    result2 = val.get_variables_by_type(type)
-                    for key2, val2 in result2.items():
-                        result[keyflowblock + "." + key + "." + key2] = val2
+                    if type(val) is list:
+                        for i,val_list in enumerate(val):
+                            result2 = val_list.get_variables_by_type(var_type)
+                            for key2, val2 in result2.items():
+                                result[keyflowblock + "." + key+"["+str(i)+"]." + key2] = val2
+                    else:
+                        result2 = val.get_variables_by_type(var_type)
+                        for key2, val2 in result2.items():
+                            result[keyflowblock + "." + key + "." + key2] = val2
             return result
 
         def find_all_results_for_block_name(self, block_name):

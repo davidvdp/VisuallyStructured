@@ -469,6 +469,32 @@ class LineVar(Var):
             raise ValueError
         self.SubVariables["end"] = end
 
+class CircleVar(Var):
+    def __init__(self, center=PointVar(), radius=FloatVar(), name="Circle"):
+        super().__init__(name)
+        self.SubVariables = {"center": PointVar(), "radius": FloatVar()}
+        self.start = center
+        self.end = radius
+
+    @property
+    def center(self):
+        return self.SubVariables["center"]
+
+    @center.setter
+    def center(self, center):
+        if not isinstance(center, PointVar):
+            raise ValueError
+        self.SubVariables["center"] = center
+
+    @property
+    def radius(self):
+        return self.SubVariables["radius"]
+
+    @radius.setter
+    def radius(self, radius):
+        if not isinstance(radius, IntVar):
+            raise ValueError
+        self.SubVariables["radius"] = radius
 
 def main():
     line = LineVar(IntPointVar(FloatVar(1.0), FloatVar(1.0)), IntPointVar(FloatVar(2.0), FloatVar(2.0)))
