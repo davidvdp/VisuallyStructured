@@ -9,8 +9,8 @@ from StandardSettings import Settings
 # these imports make the blocks available for the blockfactory.
 from FlowBlocks.Filters import Blur, Sobel, Normalize, HeatMap, Debayer, LightCorrection, AddValue, MultiplyValue, \
     SelectChannel
-from FlowBlocks.Grabbers import File, picam
-from FlowBlocks import save_image, lidar_lite_v2
+from FlowBlocks.Grabbers import File, picam, webcam
+from FlowBlocks import save_image, lidar_lite_v2, data_logger
 
 # TODO: Create tree like structure for properties within a block
 # TODO: Use icon to distinguish block types from one another
@@ -57,8 +57,6 @@ def set_logging(settings):
 
     log_file = os.path.join(log_dir, "%s_log.csv" % time)
     print(log_file)
-
-
 
     logging.basicConfig(filename=log_file, level=logging.DEBUG,
                         format='%(asctime)s;%(levelname)s;%(message)s')

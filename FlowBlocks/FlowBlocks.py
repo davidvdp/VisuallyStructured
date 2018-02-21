@@ -120,6 +120,9 @@ class FlowBlock(Var):
         self._nextSteps = []
         self.OutputVars = dict()
 
+    def is_flowblock(self):
+        return True
+
     @property
     def type(self):
         if self.__class__.__bases__[0].type_name == "Flow_Block":

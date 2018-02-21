@@ -34,8 +34,8 @@ if picam_imports_found:
             self.__thread = Thread(target=self.__start_capture_thread, args=[self.__image_buffer])
 
         def close(self):
-            logging.info("Stopping picam capture thread.")
-            print("Stopping picam capture thread.")
+            logging.info("Stopping %s capture thread." % self.name)
+            print("Stopping %s capture thread." % self.name)
             self.__thread_run = False
 
         @staticmethod
@@ -44,7 +44,7 @@ if picam_imports_found:
             return picam_imports_found
 
         def __start_capture(self):
-            logging.info("Starting picam capture.")
+            logging.info("Starting %s capture." % self.name)
             self.__thread_run = True
             self.__thread.start()
             self.__capture_started = True
@@ -69,12 +69,10 @@ if picam_imports_found:
 
 
         def execute(self, results_controller):
-            logging.info("Executing PiCam")
-
+            logging.info("Executing %s" % self.name)
             image = self.__get_image()
-
             if len(image) < 1:
-                logging.error("Could not capture PiCam frame.")
+                logging.error("Could not capture %s frame." % self.name)
                 return
 
             gray = self.SubVariables["Gray"].value

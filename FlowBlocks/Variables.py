@@ -33,6 +33,9 @@ class Var(object):
     def close(self):
         pass
 
+    def is_flowblock(self):
+        return False
+
     @property
     def name(self):
         return self.__name
@@ -83,7 +86,7 @@ class Var(object):
         if self.Stub():
             raise NotImplementedError(
                 "Stub variable types should implement their own GetVariableIDs(name) method. %s of type %s didn't." % (
-                self.name, str(type(self))))
+                    self.name, str(type(self))))
         if var_name is None:
             var_name = self.name
         varids = dict()
@@ -200,6 +203,8 @@ class Var(object):
         """
         if (len(self.SubVariables)):
             return False
+        elif self.is_flowblock():  # in case of a flowblock not having subvariables is not a sign of being a stub
+            return False
         else:
             return True
 
@@ -248,7 +253,6 @@ class ImageVar(StubVar):
     def __init__(self, image=None, name="Image"):
         super().__init__("Image", name=name)
         self.value = image
-        self.is_reference = False
 
     @property
     def value(self):
@@ -274,6 +278,9 @@ class BoolVar(StubVar):
 
     @value.setter
     def value(self, value):
+        if self.is_reference:
+            self.__value = value
+            return
         if not isinstance(value, bool):
             if value == "True" or value == "true" or value == "1":
                 value = True
@@ -332,7 +339,11 @@ class FloatVar(StubVar):
 
     @value.setter
     def value(self, value):
+        if self.is_reference:
+            self.__value = value
+            return
         if not isinstance(value, float):
+            print(value)
             value = float(value)
         self.flowidreference = None
         if self.Limits["min"] is not None and value < self.Limits["min"]:
@@ -355,6 +366,9 @@ class PathVar(StubVar):
 
     @value.setter
     def value(self, value):
+        if self.is_reference:
+            self.__value = value
+            return
         if value is None:
             self.__value = None
             return
@@ -365,10 +379,11 @@ class PathVar(StubVar):
         if os.path.exists(value):
             self.__value = value
             return
-        if os.path.isfile(value):
+        dir = os.path.dirname(value)
+        if os.path.exists(dir):
             self.__value = value
         else:
-            logging.warning("Path %s that was provided top the pathvar is not valid." % value)
+            logging.warning("Path %s that was provided to the %s does not have a valid directory." % (self.name, value))
 
 
 class IntPointVar(Var):

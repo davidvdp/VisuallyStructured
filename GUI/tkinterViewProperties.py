@@ -29,6 +29,7 @@ class ViewProperties(Observer, View):
         def OnValueSave(self):
             value = self.entryValueStringVar.get()
             is_reference = self.parent.parent.controller.results.exists(value)  # check if it exists in the results
+            #if it is a reference to a output of a different block, specify this
             newvalue = self.parent.parent.controller.flow.set_variable_value_by_id(self.id, value=value,
                                                                                    is_reference=is_reference)
             self.entryValueStringVar.set(newvalue)
