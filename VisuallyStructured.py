@@ -34,18 +34,14 @@ from FlowBlocks.Detectors import find_circles
 
 
 def set_logging(settings):
-    print("In here 1")
     log_dir = settings.log_dir
 
     if not os.path.isdir(log_dir):
         os.makedirs(log_dir)
-    print("In here 1")
     # clean log dir
     files = os.listdir(log_dir)
     nr_files = len(files)
     max_files = settings.max_log_history_days
-
-    print("Nr files: %d" %(max_files))
 
     if nr_files > max_files:
         files.sort()
@@ -57,7 +53,6 @@ def set_logging(settings):
     time = strftime("%Y%m%d", localtime())
 
     log_file = os.path.join(log_dir, "%s_log.csv" % time)
-    print(log_file)
 
     logging.basicConfig(filename=log_file, level=logging.DEBUG,
                         format='%(asctime)s;%(levelname)s;%(message)s')

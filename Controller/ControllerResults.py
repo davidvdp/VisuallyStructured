@@ -32,7 +32,7 @@ class ControllerResults(object):
         """
         for block in blocks_with_result:
             self._resultmodel.add_result(block)
-            block.clean_output_data()
+            #block.clean_output_data()
 
     def attach_view(self, view):
         logging.info("Subscribing result view to result model...")

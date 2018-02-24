@@ -219,7 +219,17 @@ class ViewProperties(Observer, View):
             for key, val in results.items():
                 varField = ViewProperties.VariableField(key, val, self)
                 self.variable_fields_out.append(varField)
-                varField.labelKey = Label(self.labelFrameOutput, text=key)
+                if type(val) == list:
+                    text_val = "\n"
+                    for i, sub_val in enumerate(val):
+                        number = str(i)
+                        text_val += number + str(sub_val).replace("\n", "\n" + " " * len(number)) + "\n"
+                        if i > 3:
+                            text_val += "...\n"
+                            break
+                else:
+                    text_val = str(val)
+                varField.labelKey = Label(self.labelFrameOutput, text=key + text_val, anchor=NW, justify=LEFT, font=("Courier", 12))
 
             for i, field in enumerate(self.variable_fields_out):
                 field.add_all_to_grid(i)

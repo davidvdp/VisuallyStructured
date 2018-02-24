@@ -1,6 +1,7 @@
 import pickle
 import os
 import logging
+from numpy import ndarray
 
 
 class Var(object):
@@ -29,6 +30,44 @@ class Var(object):
 
     def __del__(self):
         self.close()
+
+    def __repr__(self):
+        if self.stub:
+            # is stub just return name and value 'name: value'
+            if (type(self.value) == ndarray):
+                if len(self.value.shape) == 3:
+                    channels = self.value.shape[2]
+                else:
+                    channels = 1
+                value = "width: %d, height: %d, channels: %d, type: %s" % (
+                    self.value.shape[1],
+                    self.value.shape[0],
+                    channels,
+                    str(self.value.dtype)
+                )
+            else:
+                value = str(self.value)
+            return ": " + value
+        else:
+            # if not stub then iterate over subvariable and print out like:
+            # subvarname --> subsubvarname ..
+            #            |-> subsubvarname ..
+            first = True
+            output = ""
+            for key, value in self.SubVariables.items():
+                if first:
+                    first = False
+                    insert = " --> " + key
+                    output += insert + str(value)
+                    output = output.replace("\n", "\n" + len(insert) * " ")
+
+                else:
+                    #
+                    output += "\n"
+                    output += " |-> " + key + str(value)
+            return output
+
+
 
     def close(self):
         pass
@@ -343,7 +382,6 @@ class FloatVar(StubVar):
             self.__value = value
             return
         if not isinstance(value, float):
-            print(value)
             value = float(value)
         self.flowidreference = None
         if self.Limits["min"] is not None and value < self.Limits["min"]:
@@ -417,9 +455,7 @@ class IntPointVar(Var):
 class PointVar(Var):
     def __init__(self, x=FloatVar(), y=FloatVar(), name="Point"):
         super().__init__(name)
-        self.SubVariables = {"x": FloatVar(), "y": FloatVar()}
-        self.x = x
-        self.y = y
+        self.SubVariables = {"x": x, "y": y}
 
     @property
     def x(self):
@@ -472,9 +508,7 @@ class LineVar(Var):
 class CircleVar(Var):
     def __init__(self, center=PointVar(), radius=FloatVar(), name="Circle"):
         super().__init__(name)
-        self.SubVariables = {"center": PointVar(), "radius": FloatVar()}
-        self.start = center
-        self.end = radius
+        self.SubVariables = {"center": center, "radius": radius}
 
     @property
     def center(self):
