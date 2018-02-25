@@ -36,9 +36,9 @@ class ThreadPool(object):
     def __worker(self, thread_id: str):
         logging.info("started worker thread %s" % thread_id)
         while True:
-            if self.__extra_debug_info: logging.info("'%s' is waiting for a task." % (thread_id))
+            if self.__extra_debug_info: logging.debug("'%s' is waiting for a task." % (thread_id))
             task = self.__task_queue.get()
-            if self.__extra_debug_info: logging.info("'%s' got task '%s' from task queue" % (thread_id, task.name))
+            if self.__extra_debug_info: logging.debug("'%s' got task '%s' from task queue" % (thread_id, task.name))
             try:
                 task.execute()
             except:
@@ -46,36 +46,10 @@ class ThreadPool(object):
                 # formatted_lines =
                 logging.error(traceback.format_exc())
 
-            if self.__extra_debug_info: logging.info("'%s' executed task '%s' from task queue" % (thread_id, task.name))
+            if self.__extra_debug_info: logging.debug("'%s' executed task '%s' from task queue" % (thread_id, task.name))
             # task.done()
             # if self.__extra_debug_info: logging.info("'%s' has been set to DONE." % (task.name))
 
     def add_task(self, task: Task):
         self.__task_queue.put_nowait(task)
-        if self.__extra_debug_info: logging.info("Added task %s to task queue." % task.name)
-        # self.__try_execute_queued_task()
-
-        # def __try_execute_queued_task(self):
-        #     if self.__working_queue.full():
-        #         if self.__extra_debug_info: logging.info("Cannot execute task yet; no workers available.")
-        #
-        #     task = None
-        #     try:
-        #         task = self.__task_queue.get_nowait()
-        #     except Empty:
-        #         if self.__extra_debug_info: logging.info("Cannot execute task; no tasks available.")
-        #     if task is not None:
-        #         if self.__extra_debug_info: logging.info("Got task %s from task queue." % task.name)
-        #         self.__working_queue.put_nowait()
-        #
-        #         t = Thread(target=self.__worker, args=[task])
-        #         t.daemon = True
-        #         t.start()
-
-        # def __on_worker_thread_done(self, task: Task):
-        #     """
-        #     When a worker is finished it calls this function and signals it is ready. Task will be removed from
-        #     working queue and a new thread will be started when there are tasks available.
-        #     :param task: task that is finished.
-        #     :return:
-        #     """
+        if self.__extra_debug_info: logging.debug("Added task %s to task queue." % task.name)
