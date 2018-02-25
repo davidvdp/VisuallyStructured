@@ -18,7 +18,7 @@ class GUI(object):
         self.root.title(controller.name)
         self.controller = controller
         self.viewmenu = ViewMenu(self)
-        self.viewcontrol = ViewControl(self)
+        self.viewcontrol = ViewControl(self,col=0, row=0, columnspan=2)
         self.viewflow = ViewFlow(self, col=0, row=1)
         self.viewresult = ViewResults(self, col=1, row=1)
         self.viewproperties = ViewProperties(self, col=0, row=2, columnspan=2)
@@ -26,7 +26,7 @@ class GUI(object):
         self.root.rowconfigure(1, weight=1)
         self.root.columnconfigure(1, weight=1)
 
-        self.root.geometry("640x640")
+        self.root.geometry("1024x768")
 
         self.width = None
         self.height = None

@@ -8,8 +8,8 @@ import os
 class ViewControl(Observer, View):
     """Takes care of the presentation of the Flow diagram."""
 
-    def __init__(self, parent, col=0, row=0):
-        super().__init__(parent, col=col, row=row)
+    def __init__(self, parent, col=0, row=0, columnspan=1):
+        super().__init__(parent, col=col, row=row, columnspan=columnspan, sticky=NSEW)
         self.__dir_path = os.path.dirname(os.path.realpath(__file__))
 
         self.control_image_pause = PhotoImage(file=os.path.join(self.__dir_path, "icons/control_pause.png"))
@@ -37,9 +37,11 @@ class ViewControl(Observer, View):
 
         self._buttonContinuous = Button(self._frame,
                                         # text="Next Step",
-                                      command=self.flow_continuous,
+                                        command=self.flow_continuous,
                                         image=self.control_image_continuous)
         self._buttonContinuous.pack(side=LEFT)
+        self._label_mouse_info = Label(self._frame, text=self._get_text_mouse_location_info(0, 0, "-"))
+        self._label_mouse_info.pack(side=LEFT)
 
     def flow_start(self):
         self._parent.controller.flow.run_flow_once()
@@ -52,3 +54,9 @@ class ViewControl(Observer, View):
 
     def flow_continuous(self):
         self._parent.controller.flow.run_flow_continous()
+
+    def _get_text_mouse_location_info(self, x, y, color):
+        return "(%d, %d) = %s" % (x, y, color)
+
+    def show_mouse_location_info(self, x, y, color):
+        self._label_mouse_info.config(text=self._get_text_mouse_location_info(x,y,color))

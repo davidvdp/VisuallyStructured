@@ -69,8 +69,12 @@ class FlowBlockGUI(object):
         self._w.bind("<ButtonRelease-3>", self.__on_right_click_coloring)
         self._w.bind("<Enter>", self.__on_hover_enter)
         self._w.bind("<Leave>", self.__on_hover_leave)
+
         self._entered = False
         self._parent = parent
+
+
+
 
     def _destroy(self):
         '''This is used to forget this block. Used when the flow is updated.'''
