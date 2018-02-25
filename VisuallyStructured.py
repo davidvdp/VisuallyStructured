@@ -1,4 +1,7 @@
 import logging
+import logging.config
+logging.config.fileConfig('logging.conf')
+
 import os
 from time import localtime, strftime
 
@@ -53,15 +56,12 @@ def set_logging(settings):
     time = strftime("%Y%m%d", localtime())
 
     log_file = os.path.join(log_dir, "%s_log.csv" % time)
-
-    logging.basicConfig(filename=log_file, level=logging.DEBUG,
-                        format='%(asctime)s;%(levelname)s;%(message)s')
-    log_formatter = logging.Formatter('%(asctime)s\t[%(levelname)s]\t%(message)s')
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(log_formatter)
-    root_logger.addHandler(console_handler)
+    filehandler = logging.FileHandler(log_file, "a")
+    formatter = logging.Formatter('%(asctime)s;%(levelname)s;%(message)s')
+    filehandler.setFormatter(formatter)
+    root_logger.addHandler(filehandler)
+
 
 
 def main():

@@ -53,7 +53,7 @@ class ViewMenu(View):
         self.get_controller().flow.save_flow_to_file(filename)
 
     def onAbout(self):
-        print("onAbout not implemented")
+        logging.debug("onAbout not implemented")
 
     def Start(self):
         pass

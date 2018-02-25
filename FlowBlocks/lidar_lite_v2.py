@@ -51,8 +51,8 @@ if smbus2_found:
             self.__writeAndWait(self.distWriteReg, self.distWriteVal)
             dist1 = self.__readAndWait(self.distReadReg1)
             dist2 = self.__readAndWait(self.distReadReg2)
-            print("Dist1: %.5f" % dist1)
-            print("Dist2: %.5f" % dist2)
+            logging.debug("Dist1: %.5f" % dist1)
+            logging.debug("Dist2: %.5f" % dist2)
             return (dist1 << 8) + dist2
 
         def execute(self, results_controller):
@@ -69,5 +69,5 @@ if smbus2_found:
 
     FlowBlockFactory.AddBlockType(LidarLiteV2)
 else:
-    print("Could not load Lidar Lite V2.")
+    logging.info("Could not load Lidar Lite V2.")
 

@@ -229,7 +229,7 @@ class ViewProperties(Observer, View):
                             break
                 else:
                     text_val = str(val)
-                varField.labelKey = Label(self.labelFrameOutput, text=key + text_val, anchor=NW, justify=LEFT, font=("Courier", 12))
+                varField.labelKey = Label(self.labelFrameOutput, text=key + text_val, anchor=NW, justify=LEFT, font=("Courier", 8))
 
             for i, field in enumerate(self.variable_fields_out):
                 field.add_all_to_grid(i)

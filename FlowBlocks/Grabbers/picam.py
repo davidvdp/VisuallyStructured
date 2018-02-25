@@ -35,7 +35,6 @@ if picam_imports_found:
 
         def close(self):
             logging.info("Stopping %s capture thread." % self.name)
-            print("Stopping %s capture thread." % self.name)
             self.__thread_run = False
 
         @staticmethod
@@ -83,5 +82,5 @@ if picam_imports_found:
 
     FlowBlockFactory.AddBlockType(PiCam)
 else:
-    print("Could not load PiCam block.")
+    logging.info("Could not load PiCam block.")
     #logging.warning("Could not load block PiCam")

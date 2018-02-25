@@ -25,7 +25,6 @@ class WebCam(FlowBlockGrabber):
 
     def close(self):
         logging.info("Stopping %s capture thread." % self.name)
-        print("Stopping %s capture thread." % self.name)
         self.__thread_run = False
 
     def __start_capture(self):
