@@ -112,13 +112,19 @@ class ImageTab(Frame):
         self._canvas.bind("<Motion>", self._hover)
         self.npimage = None
 
-    def _hover(self, event):
+        self._prev_x = 0
+        self._prev_y = 0
+
+    def update_mouse_hover_info(self, x, y):
+        """
+        Updates the info that is displayed in the control view as the mouse moves over the image displayed
+        :param x: x location in image that is displayed
+        :param y: y location in image that is dusplayed
+        """
         if self.npimage is None:
             return
         if self._scale == 0:
             return
-
-        x, y = event.x, event.y
         image_height, image_width = self.npimage.shape[:2]
         x_scaled = x / self._scale
         y_scaled = y / self._scale
@@ -133,8 +139,12 @@ class ImageTab(Frame):
         if y_scaled < 0:
             return
         self._parent._parent.viewcontrol.show_mouse_location_info(x_scaled, y_scaled, self.npimage[y_scaled, x_scaled])
-        return
 
+    def _hover(self, event):
+        x, y = event.x, event.y
+        self._prev_x = x
+        self._prev_y = y
+        self.update_mouse_hover_info(x,y)
 
     def SetTabTitle(self, customText=None):
         zoomlevel = self._scale * 100
@@ -185,7 +195,6 @@ class ImageTab(Frame):
         self.RescaleImage(newscale)
 
     def SetImage(self, npimage):
-
         if self.npimage is npimage:
             return
 
@@ -194,6 +203,8 @@ class ImageTab(Frame):
 
         self.npimage = npimage
         self.RescaleImage()
+        # we need new information for the mouse pointer since the image has changed.
+        self.update_mouse_hover_info(self._prev_x, self._prev_y)
 
     def GetScale(self):
         return self._scale
