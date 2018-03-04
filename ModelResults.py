@@ -1,6 +1,7 @@
 from SubjectObserver import Subject
 from FlowBlocks.FlowBlocks import FlowBlock
 from copy import deepcopy
+from typing import Dict
 
 
 class ModelResults(Subject):
@@ -10,7 +11,11 @@ class ModelResults(Subject):
         def __init__(self, resultlist=dict()):
             self._results = resultlist
 
-        def GetResultDict(self):
+        def get_result_dict(self) -> Dict[str,FlowBlock]:
+            '''
+            Get al results that are ready as a result dict.
+            :return: results
+            '''
             return self._results
 
         def SetResultDict(self, resultdict):
@@ -84,7 +89,7 @@ class ModelResults(Subject):
     def OnFlowModelChange(self, flow):
         """Removes all blocks from results that have been removed from flow, keeps data of blocks that are kept and adds new blocks"""
         listofnames = flow.get_list_of_block_names()
-        oldresults = self._results.GetResultDict()
+        oldresults = self._results.get_result_dict()
         keysToKeep = set(oldresults) & set(listofnames)
         oldresults = {key: oldresults[key] for key in keysToKeep}  # remove results not in the new flow
         keystoadd = set(listofnames) - set(oldresults)

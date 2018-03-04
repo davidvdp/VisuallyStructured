@@ -1,7 +1,11 @@
 import pickle
 import os
 import logging
+#used for typing
 from numpy import ndarray
+import cv2
+
+from Vision.helper_functions import get_inverted_color, enlarge_alpha_image
 
 
 class Var(object):
@@ -83,9 +87,11 @@ class Var(object):
     def name(self, name):
         self.__name = name
 
-    def Draw(self):
+
+    def draw(self, image: ndarray, relative_size = 1, color = (255, 255, 255)) -> ndarray:
         for drawable in self.SubVariables:
-            drawable.Draw()
+            image = drawable.draw(image, relative_size, color)
+        return image
 
     @property
     def value(self):
@@ -433,7 +439,7 @@ class IntPointVar(Var):
 
     @property
     def x(self):
-        return self.SubVariables[0]
+        return self.SubVariables["x"]
 
     @x.setter
     def x(self, x):
@@ -443,7 +449,7 @@ class IntPointVar(Var):
 
     @property
     def y(self):
-        return self.SubVariables[1]
+        return self.SubVariables["y"]
 
     @y.setter
     def y(self, y):
@@ -459,7 +465,7 @@ class PointVar(Var):
 
     @property
     def x(self):
-        return self.SubVariables[0]
+        return self.SubVariables["x"]
 
     @x.setter
     def x(self, x):
@@ -469,13 +475,30 @@ class PointVar(Var):
 
     @property
     def y(self):
-        return self.SubVariables[1]
+        return self.SubVariables["y"]
 
     @y.setter
     def y(self, y):
         if not isinstance(y, FloatVar):
             raise ValueError
         self.SubVariables["y"] = y
+
+    def draw(self, image: ndarray, relative_size=1, color=(255,255,255,255)) -> ndarray:
+        line_thickness_foreground = int(1 * relative_size)
+        if line_thickness_foreground < 1: line_thickness_foreground = 1
+        line_thickness_background = 3 * line_thickness_foreground
+
+        width_needed = self.x.value + line_thickness_background + 2
+        height_needed = self.y.value + line_thickness_background + 2
+        image = enlarge_alpha_image(image, width_needed, height_needed)
+
+        color_inv = get_inverted_color(color)
+
+        cv2.circle(image, (int(self.x.value), int(self.y.value)), int(line_thickness_foreground), color_inv,
+                   thickness=line_thickness_background)
+        cv2.circle(image, (int(self.x.value), int(self.y.value)), int(line_thickness_foreground), color, thickness=line_thickness_foreground)
+
+        return image
 
 
 class LineVar(Var):
@@ -486,7 +509,7 @@ class LineVar(Var):
         self.end = end
 
     @property
-    def start(self):
+    def start(self) -> PointVar:
         return self.SubVariables["start"]
 
     @start.setter
@@ -496,7 +519,7 @@ class LineVar(Var):
         self.SubVariables["start"] = start
 
     @property
-    def end(self):
+    def end(self) -> PointVar:
         return self.SubVariables["end"]
 
     @end.setter
@@ -504,6 +527,23 @@ class LineVar(Var):
         if not isinstance(end, PointVar):
             raise ValueError
         self.SubVariables["end"] = end
+
+    def draw(self, image: ndarray, relative_size=1, color=(255,255,255,255)) -> ndarray:
+        line_thickness_foreground = int(1 * relative_size)
+        if line_thickness_foreground < 1: line_thickness_foreground = 1
+        line_thickness_background = 3 * line_thickness_foreground
+
+        width_needed = max(self.end.x.value, self.end.x.value) + line_thickness_background + 2
+        height_needed = max(self.end.y.value, self.end.y.value) + line_thickness_background + 2
+        image = enlarge_alpha_image(image, width_needed, height_needed)
+
+        color_inv = get_inverted_color(color)
+
+        cv2.line(image, (int(self.start.x.value), int(self.start.y.value)),
+                 (int(self.end.x.value), int(self.end.y.value)), color_inv, thickness=line_thickness_background)
+        cv2.line(image, (int(self.start.x.value), int(self.start.y.value)), (int(self.end.x.value), int(self.end.y.value)), color, thickness=line_thickness_foreground)
+
+        return image
 
 class CircleVar(Var):
     def __init__(self, center=PointVar(), radius=FloatVar(), name="Circle"):
@@ -529,6 +569,25 @@ class CircleVar(Var):
         if not isinstance(radius, IntVar):
             raise ValueError
         self.SubVariables["radius"] = radius
+
+    def draw(self, image: ndarray, relative_size=1, color=(255,255,255,255)) -> ndarray:
+        line_thickness_foreground = int(1 * relative_size)
+        if line_thickness_foreground < 1: line_thickness_foreground = 1
+        line_thickness_background = 3 * line_thickness_foreground
+
+        width_needed = self.center.x.value + self.radius.value + line_thickness_background + 2
+        height_needed = self.center.y.value + self.radius.value + line_thickness_background + 2
+        image = enlarge_alpha_image(image, width_needed, height_needed)
+
+        color_inv = get_inverted_color(color)
+
+        cv2.circle(image, (int(self.center.x.value), int(self.center.y.value)), int(self.radius.value), color_inv,
+                   thickness=line_thickness_background)
+        cv2.circle(image, (int(self.center.x.value), int(self.center.y.value)), int(self.radius.value), color, thickness=line_thickness_foreground)
+
+        image = self.center.draw(image, relative_size, color)
+
+        return image
 
 def main():
     line = LineVar(IntPointVar(FloatVar(1.0), FloatVar(1.0)), IntPointVar(FloatVar(2.0), FloatVar(2.0)))

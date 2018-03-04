@@ -209,7 +209,6 @@ class FlowBlockFilter(FlowBlock):
     def execute(self, results_controller):
         raise NotImplementedError()
 
-
 class FlowBlockMeasurement(FlowBlock):
     """Implementation of Flowblock. It allows for the execution of different measurements."""
     type_name = "Measurement"

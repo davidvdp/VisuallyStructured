@@ -16,13 +16,15 @@ class FindCircles(FlowBlockMeasurement):
             "Image": ImageVar(),
             "MinRadius": IntVar(min=-1),
             "MaxRadius": IntVar(min=-1),
-            "Threshold": IntVar(128, min=0, max=255)
+            "Threshold": IntVar(128, min=0, max=255),
+            "MinDistance": IntVar(20,min=0)
         }
         self.OutputVars = {"Circles": []}  # and an output
 
     def execute(self, results_controller):
         super(FindCircles, self).execute(results_controller)
         self.OutputVars["Circles"] = []
+        min_dist = self.get_subvariable_or_referencedvariable("MinDistance", results_controller).value
         min_radius = self.get_subvariable_or_referencedvariable("MinRadius", results_controller).value
         max_radius = self.get_subvariable_or_referencedvariable("MaxRadius", results_controller).value
         threshold = self.get_subvariable_or_referencedvariable("Threshold", results_controller).value
@@ -41,7 +43,7 @@ class FindCircles(FlowBlockMeasurement):
         if max_radius == -1:
             max_radius = max(image.shape[0], image.shape[1])
 
-        circles = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1, int(image.shape[0] / 100), param1=threshold,
+        circles = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1, min_dist, param1=threshold,
                                    param2=int(threshold * 0.6),
                                    minRadius=min_radius, maxRadius=max_radius)
 
@@ -52,6 +54,7 @@ class FindCircles(FlowBlockMeasurement):
         for i in circles[0, :]:
             circle_var = CircleVar(PointVar(FloatVar(i[0]),FloatVar(i[1])), FloatVar(i[2]))
             self.OutputVars["Circles"].append(circle_var)
+
 
 
 FlowBlockFactory.AddBlockType(FindCircles)

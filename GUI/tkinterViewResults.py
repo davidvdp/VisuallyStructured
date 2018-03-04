@@ -6,8 +6,11 @@ from PIL import Image, ImageTk
 import numpy as np
 import cv2
 from FlowBlocks.Variables import *
+from FlowBlocks import FlowBlock
 from SubjectObserver import Observer
 from queue import Queue, Empty
+from typing import Dict, List
+from Vision.helper_functions import combine_image_and_overlay
 
 class ViewResults(Observer, View):
     """Takes care of the presentation of the Flow diagram."""
@@ -20,9 +23,11 @@ class ViewResults(Observer, View):
         self._notebook.config()
         self._notebook.grid(sticky=NSEW)
         self._notebook.grid(sticky=NSEW)
-        self._tabs = []
+        self._tabs = [] # type: List[ImageTab]
         self._results = None
         self._parent = parent
+        self.image_overlay = np.empty(shape=(0,0,0), dtype=np.uint8)
+
 
         # TODO: Work around below should be fixed; need to create a tab first and delete it, or background is old image in constant scale.
         name_init = "initialization_image"
@@ -33,6 +38,19 @@ class ViewResults(Observer, View):
 
         # add custom event handler to let updates be taken care of in tk main loop
         parent.root.bind("<<ViewResults.Update>>", self.__update)
+        self._notebook.bind("<<NotebookTabChanged>>", self.__on_tabchange)
+
+        self.__last_selected_tab = None
+
+    def __on_tabchange(self, event):
+        try:
+            tab_index = self._notebook.index(self._notebook.select())
+        except TclError as ex:
+            return # there are no tabs yet
+        if self.__last_selected_tab is not None:
+            self.__last_selected_tab.on_tab_deselect()
+        self.__last_selected_tab = self._tabs[tab_index]
+        self.__last_selected_tab.on_tab_selected()
 
     def RemoveTab(self, name):
         for tab in self._tabs:
@@ -64,6 +82,24 @@ class ViewResults(Observer, View):
             if name == flowblock_name:
                 self.add_to_tab(var.value, name)
 
+    def __draw_all_drawables_until(self, flowblock_name=None):
+        '''
+        Draws al drawable results to image_overlay. Images is as large as to fit all drawables.
+        :param flowblock_name: draw until this block.
+        :return:
+        '''
+        results = self.get_controller().results.get_result_dict() # type: Dict[str,Dict[str,Var]]
+        self.image_overlay = np.empty(shape=(0, 0, 0), dtype=np.uint8)
+        logging.debug("Starting drawing of drawables...")
+        for key, value in results.items():
+            for key2, value2 in value.items():
+                if type(value2) == list:
+                    for value3 in value2:
+                        self.image_overlay = value3.draw(self.image_overlay)
+                else:
+                    self.image_overlay = value2.draw(self.image_overlay)
+        logging.debug("Finished drawing of drawables.")
+
     def __update(self, event):
         self._results = self.get_controller().results.get_results_for_block()
         try:
@@ -71,7 +107,11 @@ class ViewResults(Observer, View):
         except Empty:
             flowblock_name = None
         if not flowblock_name is None:
+            # redraw al drawables
+            self.__draw_all_drawables_until(flowblock_name)
+            # a flowblock has just updated, go and show all containing images
             self.__findAllImagesAndShow(flowblock_name)
+
 
     def Update(self, *args, **kwargs):
         self.__temp_data_queue.put_nowait({"flowblock_name": kwargs.get("flowblock_name", None)})
@@ -110,10 +150,21 @@ class ImageTab(Frame):
         self._canvas.bind("<MouseWheel>", self._onMouseWheel)
         self._canvas.bind("<Button-3>", self._onRightButton)
         self._canvas.bind("<Motion>", self._hover)
+        self._canvas.bind("<<NotebookTabChanged>>", self.on_tab_selected)
         self.npimage = None
 
-        self._prev_x = 0
-        self._prev_y = 0
+        self._prev_x = None
+        self._prev_y = None
+
+        self.selected = False # is the currently selected?
+
+    def on_tab_selected(self):
+        logging.debug("Changed tab to %s." % self._name)
+        self.selected = True
+        self.redraw_image()
+
+    def on_tab_deselect(self):
+        self.selected = False
 
     def update_mouse_hover_info(self, x, y):
         """
@@ -121,6 +172,10 @@ class ImageTab(Frame):
         :param x: x location in image that is displayed
         :param y: y location in image that is dusplayed
         """
+        if not self.selected: # only show values for the selected tab
+            return
+        if x is None or y is None:
+            return
         if self.npimage is None:
             return
         if self._scale == 0:
@@ -141,10 +196,11 @@ class ImageTab(Frame):
         self._parent._parent.viewcontrol.show_mouse_location_info(x_scaled, y_scaled, self.npimage[y_scaled, x_scaled])
 
     def _hover(self, event):
-        x, y = event.x, event.y
-        self._prev_x = x
-        self._prev_y = y
-        self.update_mouse_hover_info(x,y)
+        if self.selected:
+            x, y = event.x, event.y
+            self._prev_x = x
+            self._prev_y = y
+            self.update_mouse_hover_info(x,y)
 
     def SetTabTitle(self, customText=None):
         zoomlevel = self._scale * 100
@@ -162,11 +218,11 @@ class ImageTab(Frame):
 
     def ZoomIn(self):
         newscale = self.GetScale() * 1.2
-        self.RescaleImage(newscale)
+        self.redraw_image(newscale)
 
     def ZoomOut(self):
         newscale = self.GetScale() / 1.2
-        self.RescaleImage(newscale)
+        self.redraw_image(newscale)
 
     def ZoomFit(self):
         widthFrame = self.winfo_width()
@@ -183,7 +239,7 @@ class ImageTab(Frame):
         else:
             newscale = heightRatio
 
-        self.RescaleImage(newscale)
+        self.redraw_image(newscale)
         self.SetTabTitle("Fit")
 
     def _onMouseWheel(self, event):
@@ -192,7 +248,7 @@ class ImageTab(Frame):
         else:
             scalechange = event.delta / 100
         newscale = self.GetScale() * scalechange
-        self.RescaleImage(newscale)
+        self.redraw_image(newscale)
 
     def SetImage(self, npimage):
         if self.npimage is npimage:
@@ -202,7 +258,7 @@ class ImageTab(Frame):
             npimage = cv2.cvtColor(npimage, cv2.COLOR_BGR2RGB)
 
         self.npimage = npimage
-        self.RescaleImage()
+        self.redraw_image()
         # we need new information for the mouse pointer since the image has changed.
         self.update_mouse_hover_info(self._prev_x, self._prev_y)
 
@@ -213,7 +269,10 @@ class ImageTab(Frame):
         if scale < 0.00001: return
         self._scale = scale
 
-    def RescaleImage(self, scale=None):
+    def redraw_image(self, scale=None):
+        if not self.selected: # we do not need to draw anything because the tab is not shown
+            return
+
         if scale:
             self.SetScale(scale)
             if scale < 0.00001:
@@ -228,13 +287,18 @@ class ImageTab(Frame):
             if newSize[1] < 1:
                 return
             rescaledimages = cv2.resize(self.npimage, (int(newSize[0]), int(newSize[1])))
+            rescaledOverlay = cv2.resize(self._parent.image_overlay, None, fx=scale, fy=scale)
         else:
             rescaledimages = self.npimage
+            rescaledOverlay = self._parent.image_overlay
+
+        if rescaledOverlay.shape[0] != 0 and rescaledOverlay.shape[1] != 0:
+            rescaledimages = combine_image_and_overlay(rescaledimages, rescaledOverlay)
         height = rescaledimages.shape[0]
         width = rescaledimages.shape[1]
         self._canvas.config(scrollregion=(0, 0, width, height))
         # self.im = Image.fromarray(plt.cm.gist_earth(rescaledimages, bytes=True))
-        if len(self.npimage.shape) is 3:
+        if len(rescaledimages.shape) is 3:
             self.im = Image.frombytes('RGB', (rescaledimages.shape[1], rescaledimages.shape[0]),
                                       rescaledimages.astype('b').tostring())
         else:
@@ -249,7 +313,7 @@ class ImageTab(Frame):
         rmenu.add_command(label="Zoom In (Scroll wheel)", command=self.ZoomIn)
         rmenu.add_command(label="Zoom Out (Scroll wheel)", command=self.ZoomOut)
         rmenu.add_command(label="Zoom Fit", command=self.ZoomFit)
-        rmenu.add_command(label="Zoom 100%", command=lambda: self.RescaleImage(scale=1.0))
+        rmenu.add_command(label="Zoom 100%", command=lambda: self.redraw_image(scale=1.0))
 
         self.tk.call('tk_popup', rmenu, x, y)
 

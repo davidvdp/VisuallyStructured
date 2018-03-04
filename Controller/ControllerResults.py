@@ -23,6 +23,9 @@ class ControllerResults(object):
     def get_results_of_type(self, type: type):
         return self._resultmodel.get_all_of_type(type)
 
+    def get_result_dict(self):
+        return self._resultmodel.get_result().get_result_dict()
+
     def add_blocks_to_result(self, blocks_with_result: List[FlowBlock]):
         """
         Adds the results of a block to the result model. Results, when saved in results will be deleted from flow.
