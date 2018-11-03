@@ -26,6 +26,14 @@ class WebCam(FlowBlockGrabber):
     def close(self):
         logging.debug("Trying to stop %s capture thread." % self.name)
         self.__thread_run = False
+        cnt = 0
+        while self.__thread.is_alive():
+            sleep(0.01)
+            cnt += 1
+            if cnt > 500:
+                logging.error("Could not stop %s capture thread." % self.name)
+                break
+        logging.info("Stopped %s capture thread." % self.name)
 
     def __start_capture(self):
         logging.debug("Trying to start %s capture." % self.name)
@@ -53,6 +61,7 @@ class WebCam(FlowBlockGrabber):
         try:
             with WebCamCapture() as camera:
                 while self.__thread_run:
+                    print("test")
                     _, image = camera.read()
                     if image_buffer.full():
                         # if full remove oldest frame and add new one

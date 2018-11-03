@@ -287,12 +287,15 @@ class ImageTab(Frame):
             if newSize[1] < 1:
                 return
             rescaledimages = cv2.resize(self.npimage, (int(newSize[0]), int(newSize[1])))
-            rescaledOverlay = cv2.resize(self._parent.image_overlay, None, fx=scale, fy=scale)
+            rescaledOverlay = None
+            if self._parent.image_overlay.shape[0] > 0:
+                rescaledOverlay = cv2.resize(self._parent.image_overlay, None, fx=scale, fy=scale)
+
         else:
             rescaledimages = self.npimage
             rescaledOverlay = self._parent.image_overlay
 
-        if rescaledOverlay.shape[0] != 0 and rescaledOverlay.shape[1] != 0:
+        if rescaledOverlay and rescaledOverlay.shape[0] != 0 and rescaledOverlay.shape[1] != 0:
             rescaledimages = combine_image_and_overlay(rescaledimages, rescaledOverlay)
         height = rescaledimages.shape[0]
         width = rescaledimages.shape[1]
